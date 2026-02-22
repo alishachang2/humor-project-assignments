@@ -87,30 +87,47 @@ export default function HomePage() {
       }}
     >
       <style>{`
-        .glass {
+        .glass-card {
+          background: rgba(255, 255, 255, 0.22);
+          backdrop-filter: blur(9px);
+          -webkit-backdrop-filter: blur(9px);
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.5),
+            inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+            inset 0 0 18px 9px rgba(255, 255, 255, 0.9);
           position: relative;
-          background: rgba(255, 255, 255, 0.15);
-          backdrop-filter: blur(2px) saturate(180%);
-          border: 1px solid rgba(255, 255, 255, 0.8);
-          border-radius: 2rem;
-          box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2), 
-                      inset 0 4px 20px rgba(255, 255, 255, 0.3);
+          overflow: hidden;
         }
-        .glass::after {
+        .glass-card::before {
           content: '';
           position: absolute;
           top: 0;
           left: 0;
-          width: 100%;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.8),
+            transparent
+          );
+        }
+        .glass-card::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 1px;
           height: 100%;
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 2rem;
-          backdrop-filter: blur(1px);
-          box-shadow: inset -10px -8px 0px -11px rgba(255, 255, 255, 1),
-                      inset 0px -9px 0px -8px rgba(255, 255, 255, 1);
-          opacity: 0.6;
-          z-index: -1;
-          filter: blur(1px) drop-shadow(10px 4px 6px black) brightness(115%);
+          background: linear-gradient(
+            180deg,
+            rgba(255, 255, 255, 0.8),
+            transparent,
+            rgba(255, 255, 255, 0.3)
+          );
         }
         @keyframes fadeInOut {
           0%   { opacity: 0; transform: translateY(8px); }
@@ -268,14 +285,26 @@ export default function HomePage() {
                 </p>
               </div>
             ) : (
-              <>
-                {/* Progress */}
-                <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div
+                className="glass-card"
+                style={{
+                  width: "100%",
+                  maxWidth: "560px",
+                  padding: "28px 32px 24px",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "20px",
+                  textAlign: "center",
+                }}
+              >
+                {/* Progress inside card */}
+                <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: theme.textSecondary }}>
                     <span>Rate this caption</span>
                     <span>{index + 1} / {captions.length}</span>
                   </div>
-                  <div style={{ width: "100%", height: "4px", background: "#ffffff15", borderRadius: "999px", overflow: "hidden" }}>
+                  <div style={{ width: "100%", height: "4px", background: "#00000015", borderRadius: "999px", overflow: "hidden" }}>
                     <div
                       style={{
                         height: "100%",
@@ -288,109 +317,97 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Caption + voting card — glass effect */}
-                <div
-                  className="glass"
+                {/* Divider */}
+                <div style={{ width: "100%", height: "1px", background: "rgba(0,0,0,0.08)" }} />
+
+                {/* Caption text */}
+                <p
                   style={{
-                    width: "100%",
-                    maxWidth: "560px",
-                    padding: "36px 36px 28px",
+                    fontSize: "22px",
+                    fontWeight: "600",
+                    color: theme.textPrimary,
+                    lineHeight: "1.4",
+                    margin: "0",
+                    minHeight: "80px",
                     display: "flex",
-                    flexDirection: "column",
                     alignItems: "center",
-                    gap: "24px",
-                    textAlign: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  {/* Caption text */}
-                  <p
+                  {caption?.content}
+                </p>
+
+                {/* Divider */}
+                <div style={{ width: "100%", height: "1px", background: "rgba(0,0,0,0.08)" }} />
+
+                {/* Vote buttons — smaller */}
+                <div style={{ display: "flex", gap: "12px", width: "70%", margin: "0 auto" }}>
+                  <button
+                    onClick={() => setVotedValue(1)}
                     style={{
-                      fontSize: "22px",
-                      fontWeight: "600",
-                      color: theme.textPrimary,
-                      lineHeight: "1.4",
-                      margin: "0",
-                      minHeight: "60px",
+                      flex: 1,
+                      padding: "14px 0",
+                      borderRadius: "14px",
+                      border: votedValue === 1 ? `2px solid ${UPVOTE_COLOR}` : `2px solid ${UPVOTE_COLOR}88`,
+                      background: votedValue === 1 ? `${UPVOTE_COLOR}33` : `${UPVOTE_COLOR}11`,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      transform: votedValue === 1 ? "scale(1.06)" : "scale(1)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
-                    {caption?.content}
-                  </p>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill={votedValue === 1 ? UPVOTE_COLOR : `${UPVOTE_COLOR}cc`} style={{ transition: "fill 0.15s ease" }}>
+                      <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
+                    </svg>
+                  </button>
 
-                  {/* Divider */}
-                  <div style={{ width: "100%", height: "1px", background: "rgba(255,255,255,0.15)" }} />
-
-                  {/* Vote buttons */}
-                  <div style={{ display: "flex", gap: "16px", width: "100%" }}>
-                    <button
-                      onClick={() => setVotedValue(1)}
-                      style={{
-                        flex: 1,
-                        padding: "22px 0",
-                        borderRadius: "16px",
-                        border: votedValue === 1 ? `2px solid ${UPVOTE_COLOR}` : `2px solid ${UPVOTE_COLOR}88`,
-                        background: votedValue === 1 ? `${UPVOTE_COLOR}33` : `${UPVOTE_COLOR}11`,
-                        cursor: "pointer",
-                        transition: "all 0.15s ease",
-                        transform: votedValue === 1 ? "scale(1.04)" : "scale(1)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <svg width="38" height="38" viewBox="0 0 24 24" fill={votedValue === 1 ? UPVOTE_COLOR : `${UPVOTE_COLOR}cc`} style={{ transition: "fill 0.15s ease" }}>
-                        <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
-                      </svg>
-                    </button>
-
-                    <button
-                      onClick={() => setVotedValue(-1)}
-                      style={{
-                        flex: 1,
-                        padding: "22px 0",
-                        borderRadius: "16px",
-                        border: votedValue === -1 ? `2px solid ${DOWNVOTE_COLOR}` : `2px solid ${DOWNVOTE_COLOR}88`,
-                        background: votedValue === -1 ? `${DOWNVOTE_COLOR}33` : `${DOWNVOTE_COLOR}11`,
-                        cursor: "pointer",
-                        transition: "all 0.15s ease",
-                        transform: votedValue === -1 ? "scale(1.04)" : "scale(1)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <svg width="38" height="38" viewBox="0 0 24 24" fill={votedValue === -1 ? DOWNVOTE_COLOR : `${DOWNVOTE_COLOR}cc`} style={{ transition: "fill 0.15s ease" }}>
-                        <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Next button — always visible, disabled until voted */}
                   <button
-                    onClick={handleNext}
-                    disabled={votedValue === null}
+                    onClick={() => setVotedValue(-1)}
                     style={{
-                      width: "100%",
-                      padding: "16px",
+                      flex: 1,
+                      padding: "14px 0",
                       borderRadius: "14px",
-                      border: "none",
-                      background: votedValue !== null ? theme.icon : "#ffffff15",
-                      color: votedValue !== null ? "#fff" : "#ffffff40",
-                      fontSize: "16px",
-                      fontWeight: "600",
-                      cursor: votedValue !== null ? "pointer" : "not-allowed",
-                      fontFamily: "Inter, sans-serif",
-                      transition: "all 0.2s ease",
+                      border: votedValue === -1 ? `2px solid ${DOWNVOTE_COLOR}` : `2px solid ${DOWNVOTE_COLOR}88`,
+                      background: votedValue === -1 ? `${DOWNVOTE_COLOR}33` : `${DOWNVOTE_COLOR}11`,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                      transform: votedValue === -1 ? "scale(1.06)" : "scale(1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
-                    onMouseEnter={e => { if (votedValue !== null) e.currentTarget.style.opacity = "0.85"; }}
-                    onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
                   >
-                    {index + 1 >= captions.length ? "Finish" : "Next →"}
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill={votedValue === -1 ? DOWNVOTE_COLOR : `${DOWNVOTE_COLOR}cc`} style={{ transition: "fill 0.15s ease" }}>
+                      <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
+                    </svg>
                   </button>
                 </div>
-              </>
+
+                {/* Next button */}
+                <button
+                  onClick={handleNext}
+                  disabled={votedValue === null}
+                  style={{
+                    width: "100%",
+                    padding: "14px",
+                    borderRadius: "12px",
+                    border: "none",
+                    background: votedValue !== null ? theme.icon : "rgba(0,0,0,0.08)",
+                    color: votedValue !== null ? "#fff" : "rgba(0,0,0,0.25)",
+                    fontSize: "15px",
+                    fontWeight: "600",
+                    cursor: votedValue !== null ? "pointer" : "not-allowed",
+                    fontFamily: "Inter, sans-serif",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={e => { if (votedValue !== null) e.currentTarget.style.opacity = "0.85"; }}
+                  onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+                >
+                  {index + 1 >= captions.length ? "Finish" : "Next →"}
+                </button>
+              </div>
             )}
           </>
         )}
