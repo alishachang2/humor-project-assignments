@@ -28,29 +28,32 @@ export default function HomePage() {
   );
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) router.push("/login");
-      else setUser(data.user);
-    });
-
-    const { count } = await supabase
-  .from("captions")
-  .select("*", { count: "exact", head: true });
-
-const total = count ?? 0;
-const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
-
-supabase
-  .from("captions")
-  .select("id, content")
-  .range(randomOffset, randomOffset + 9)
-  .then(({ data }) => {
-    if (data) setCaptions(data);
+  supabase.auth.getUser().then(({ data }) => {
+    if (!data.user) router.push("/login");
+    else setUser(data.user);
   });
 
-    const timer = setTimeout(() => setShowGreeting(false), 5000);
-    return () => clearTimeout(timer);
-  }, []);
+  const loadCaptions = async () => {
+    const { count } = await supabase
+      .from("captions")
+      .select("*", { count: "exact", head: true });
+
+    const total = count ?? 0;
+    const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
+
+    const { data } = await supabase
+      .from("captions")
+      .select("id, content")
+      .range(randomOffset, randomOffset + 9);
+
+    if (data) setCaptions(data);
+  };
+
+  loadCaptions();
+
+  const timer = setTimeout(() => setShowGreeting(false), 5000);
+  return () => clearTimeout(timer);
+}, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
