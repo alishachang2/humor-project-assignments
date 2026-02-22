@@ -12,7 +12,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: "https://humor-project-assignments-8dzxpl3q0-alishachang2s-projects.vercel.app/auth/callback" },
+      options: { redirectTo: "https://humor-project-assignments.vercel.app/auth/callback" },
     });
   };
 
