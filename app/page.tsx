@@ -276,55 +276,56 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Upvote card */}
-            <button
-              onClick={() => setVotedValue(1)}
-              style={{
-                width: "100%",
-                maxWidth: "560px",
-                padding: "28px",
-                borderRadius: "24px",
-                border: votedValue === 1 ? "2px solid #e8450a" : theme.border,
-                background: votedValue === 1 ? "#e8450a22" : theme.card,
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-                transform: votedValue === 1 ? "scale(1.02)" : "scale(1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg width="52" height="52" viewBox="0 0 24 24" fill={votedValue === 1 ? "#e8450a" : "#ffffff55"} style={{ transition: "fill 0.15s ease" }}>
-                <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
-              </svg>
-            </button>
+            {/* Vote buttons - side by side */}
+            <div style={{ display: "flex", gap: "16px", width: "100%", maxWidth: "560px" }}>
+              {/* Upvote */}
+              <button
+                onClick={() => setVotedValue(1)}
+                style={{
+                  flex: 1,
+                  padding: "36px 0",
+                  borderRadius: "24px",
+                  border: votedValue === 1 ? "2px solid #e8450a" : "2px solid #e8450a88",
+                  background: votedValue === 1 ? "#e8450a33" : "#e8450a11",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  transform: votedValue === 1 ? "scale(1.04)" : "scale(1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <svg width="56" height="56" viewBox="0 0 24 24" fill={votedValue === 1 ? "#e8450a" : "#e8450acc"} style={{ transition: "fill 0.15s ease" }}>
+                  <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
+                </svg>
+              </button>
 
-            {/* Downvote card */}
-            <button
-              onClick={() => setVotedValue(-1)}
-              style={{
-                width: "100%",
-                maxWidth: "560px",
-                padding: "28px",
-                borderRadius: "24px",
-                border: votedValue === -1 ? "2px solid #8b8fe8" : theme.border,
-                background: votedValue === -1 ? "#8b8fe822" : theme.card,
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                cursor: "pointer",
-                transition: "all 0.15s ease",
-                transform: votedValue === -1 ? "scale(1.02)" : "scale(1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <svg width="52" height="52" viewBox="0 0 24 24" fill={votedValue === -1 ? "#8b8fe8" : "#ffffff55"} style={{ transition: "fill 0.15s ease" }}>
-                <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
-              </svg>
-            </button>
+              {/* Downvote */}
+              <button
+                onClick={() => setVotedValue(-1)}
+                style={{
+                  flex: 1,
+                  padding: "36px 0",
+                  borderRadius: "24px",
+                  border: votedValue === -1 ? "2px solid #8b8fe8" : "2px solid #8b8fe888",
+                  background: votedValue === -1 ? "#8b8fe833" : "#8b8fe811",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  transform: votedValue === -1 ? "scale(1.04)" : "scale(1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <svg width="56" height="56" viewBox="0 0 24 24" fill={votedValue === -1 ? "#8b8fe8" : "#8b8fe8cc"} style={{ transition: "fill 0.15s ease" }}>
+                  <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
+                </svg>
+              </button>
+            </div>
 
             {/* Next button — only appears after voting */}
             {votedValue !== null && (
