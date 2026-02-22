@@ -14,7 +14,9 @@ export default function HomePage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [captions, setCaptions] = useState<Caption[]>([]);
-  const [votes, setVotes] = useState<Record<string, number>>({});
+  const [index, setIndex] = useState(0);
+  const [votedValue, setVotedValue] = useState<1 | -1 | null>(null);
+  const [done, setDone] = useState(false);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,11 +25,8 @@ export default function HomePage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        router.push("/login");
-      } else {
-        setUser(data.user);
-      }
+      if (!data.user) router.push("/login");
+      else setUser(data.user);
     });
 
     supabase
@@ -44,26 +43,35 @@ export default function HomePage() {
     router.push("/login");
   };
 
-  const handleVote = async (captionId: string, voteValue: 1 | -1) => {
-    if (!user) return;
+  const handleVote = async (voteValue: 1 | -1) => {
+    if (!user || votedValue !== null) return;
+    const caption = captions[index];
 
-    const { error } = await supabase
-      .from("caption_votes")
-      .insert({
-        caption_id: captionId,
-        profile_id: user.id,
-        vote_value: voteValue,
-      });
+    const { error } = await supabase.from("caption_votes").insert({
+      caption_id: caption.id,
+      profile_id: user.id,
+      vote_value: voteValue,
+    });
 
     if (error) {
-      console.error(error);
       alert("Failed to submit vote: " + error.message);
     } else {
-      setVotes((prev) => ({ ...prev, [captionId]: voteValue }));
+      setVotedValue(voteValue);
+    }
+  };
+
+  const handleNext = () => {
+    if (index + 1 >= captions.length) {
+      setDone(true);
+    } else {
+      setIndex((i) => i + 1);
+      setVotedValue(null);
     }
   };
 
   if (!user) return null;
+
+  const caption = captions[index];
 
   return (
     <div
@@ -201,7 +209,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Captions voting card */}
+        {/* Caption voting card */}
         <div
           style={{
             width: "100%",
@@ -212,72 +220,115 @@ export default function HomePage() {
             borderRadius: "24px",
             border: theme.border,
             padding: "40px 48px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "32px",
+            textAlign: "center",
           }}
         >
-          <h2
-            style={{
-              fontSize: "20px",
-              fontWeight: "700",
-              color: theme.textPrimary,
-              margin: "0 0 24px 0",
-              letterSpacing: "-0.3px",
-            }}
-          >
-            Rate these captions
-          </h2>
-
-          {captions.length === 0 ? (
-            <p style={{ color: theme.textSecondary }}>No captions found.</p>
+          {done || captions.length === 0 ? (
+            <p style={{ fontSize: "18px", color: theme.textPrimary, fontWeight: "600" }}>
+              {captions.length === 0 ? "No captions found." : "You've rated all captions! 🎉"}
+            </p>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {captions.map((caption) => (
-                <div
-                  key={caption.id}
+            <>
+              {/* Progress */}
+              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: theme.textSecondary }}>
+                  <span>Rate this caption</span>
+                  <span>{index + 1} / {captions.length}</span>
+                </div>
+                <div style={{ width: "100%", height: "4px", background: "#ffffff15", borderRadius: "999px", overflow: "hidden" }}>
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${((index + (votedValue !== null ? 1 : 0)) / captions.length) * 100}%`,
+                      background: theme.icon,
+                      borderRadius: "999px",
+                      transition: "width 0.3s ease",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Caption text */}
+              <p
+                style={{
+                  fontSize: "22px",
+                  fontWeight: "600",
+                  color: theme.textPrimary,
+                  lineHeight: "1.4",
+                  margin: "0",
+                  minHeight: "80px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {caption?.content}
+              </p>
+
+              {/* Vote buttons */}
+              <div style={{ display: "flex", gap: "16px", width: "100%" }}>
+                <button
+                  onClick={() => handleVote(-1)}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "16px",
-                    padding: "14px 0",
-                    borderBottom: theme.border,
+                    flex: 1,
+                    padding: "20px",
+                    fontSize: "32px",
+                    borderRadius: "16px",
+                    border: votedValue === -1 ? "2px solid #f87171" : "2px solid #ffffff15",
+                    background: votedValue === -1 ? "#f8717122" : "#ffffff08",
+                    cursor: votedValue !== null ? "default" : "pointer",
+                    transition: "all 0.15s ease",
+                    transform: votedValue === -1 ? "scale(1.05)" : "scale(1)",
                   }}
                 >
-                  <span style={{ fontSize: "15px", color: theme.textPrimary, flex: 1 }}>
-                    {caption.content}
-                  </span>
-                  <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
-                    <button
-                      onClick={() => handleVote(caption.id, 1)}
-                      style={{
-                        background: votes[caption.id] === 1 ? "#4ade8033" : "transparent",
-                        border: `1px solid ${votes[caption.id] === 1 ? "#4ade80" : "#ffffff22"}`,
-                        borderRadius: "8px",
-                        padding: "6px 12px",
-                        cursor: "pointer",
-                        fontSize: "16px",
-                        transition: "all 0.15s ease",
-                      }}
-                    >
-                      
-                    </button>
-                    <button
-                      onClick={() => handleVote(caption.id, -1)}
-                      style={{
-                        background: votes[caption.id] === -1 ? "#f8717133" : "transparent",
-                        border: `1px solid ${votes[caption.id] === -1 ? "#f87171" : "#ffffff22"}`,
-                        borderRadius: "8px",
-                        padding: "6px 12px",
-                        cursor: "pointer",
-                        fontSize: "16px",
-                        transition: "all 0.15s ease",
-                      }}
-                    >
-                      
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  👎
+                </button>
+                <button
+                  onClick={() => handleVote(1)}
+                  style={{
+                    flex: 1,
+                    padding: "20px",
+                    fontSize: "32px",
+                    borderRadius: "16px",
+                    border: votedValue === 1 ? "2px solid #4ade80" : "2px solid #ffffff15",
+                    background: votedValue === 1 ? "#4ade8022" : "#ffffff08",
+                    cursor: votedValue !== null ? "default" : "pointer",
+                    transition: "all 0.15s ease",
+                    transform: votedValue === 1 ? "scale(1.05)" : "scale(1)",
+                  }}
+                >
+                  👍
+                </button>
+              </div>
+
+              {/* Next button — only appears after voting */}
+              {votedValue !== null && (
+                <button
+                  onClick={handleNext}
+                  style={{
+                    width: "100%",
+                    padding: "16px",
+                    borderRadius: "14px",
+                    border: "none",
+                    background: theme.icon,
+                    color: "#fff",
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    fontFamily: "Inter, sans-serif",
+                    transition: "opacity 0.15s ease",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                >
+                  {index + 1 >= captions.length ? "Finish" : "Next →"}
+                </button>
+              )}
+            </>
           )}
         </div>
       </main>
