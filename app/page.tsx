@@ -87,48 +87,6 @@ export default function HomePage() {
       }}
     >
       <style>{`
-        .glass-card {
-          background: rgba(255, 255, 255, 0.22);
-          backdrop-filter: blur(9px);
-          -webkit-backdrop-filter: blur(9px);
-          border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          box-shadow: 
-            0 8px 32px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.5),
-            inset 0 -1px 0 rgba(255, 255, 255, 0.1),
-            inset 0 0 18px 9px rgba(255, 255, 255, 0.9);
-          position: relative;
-          overflow: hidden;
-        }
-        .glass-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.8),
-            transparent
-          );
-        }
-        .glass-card::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 1px;
-          height: 100%;
-          background: linear-gradient(
-            180deg,
-            rgba(255, 255, 255, 0.8),
-            transparent,
-            rgba(255, 255, 255, 0.3)
-          );
-        }
         @keyframes fadeInOut {
           0%   { opacity: 0; transform: translateY(8px); }
           15%  { opacity: 1; transform: translateY(0); }
@@ -286,25 +244,29 @@ export default function HomePage() {
               </div>
             ) : (
               <div
-                className="glass-card"
                 style={{
                   width: "100%",
                   maxWidth: "560px",
-                  padding: "28px 32px 24px",
+                  background: theme.card,
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  borderRadius: "24px",
+                  border: theme.border,
+                  padding: "52px 48px",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: "20px",
+                  gap: "24px",
                   textAlign: "center",
                 }}
               >
-                {/* Progress inside card */}
+                {/* Progress */}
                 <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: theme.textSecondary }}>
                     <span>Rate this caption</span>
                     <span>{index + 1} / {captions.length}</span>
                   </div>
-                  <div style={{ width: "100%", height: "4px", background: "#00000015", borderRadius: "999px", overflow: "hidden" }}>
+                  <div style={{ width: "100%", height: "4px", background: "#ffffff15", borderRadius: "999px", overflow: "hidden" }}>
                     <div
                       style={{
                         height: "100%",
@@ -318,7 +280,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Divider */}
-                <div style={{ width: "100%", height: "1px", background: "rgba(0,0,0,0.08)" }} />
+                <div style={{ width: "100%", height: "1px", background: "#ffffff10" }} />
 
                 {/* Caption text */}
                 <p
@@ -338,10 +300,10 @@ export default function HomePage() {
                 </p>
 
                 {/* Divider */}
-                <div style={{ width: "100%", height: "1px", background: "rgba(0,0,0,0.08)" }} />
+                <div style={{ width: "100%", height: "1px", background: "#ffffff10" }} />
 
-                {/* Vote buttons — smaller */}
-                <div style={{ display: "flex", gap: "12px", width: "70%", margin: "0 auto" }}>
+                {/* Vote buttons — smaller, centered */}
+                <div style={{ display: "flex", gap: "12px", width: "60%" }}>
                   <button
                     onClick={() => setVotedValue(1)}
                     style={{
@@ -391,12 +353,12 @@ export default function HomePage() {
                   disabled={votedValue === null}
                   style={{
                     width: "100%",
-                    padding: "14px",
-                    borderRadius: "12px",
+                    padding: "16px",
+                    borderRadius: "14px",
                     border: "none",
-                    background: votedValue !== null ? theme.icon : "rgba(0,0,0,0.08)",
-                    color: votedValue !== null ? "#fff" : "rgba(0,0,0,0.25)",
-                    fontSize: "15px",
+                    background: votedValue !== null ? theme.icon : "#ffffff15",
+                    color: votedValue !== null ? "#fff" : "#ffffff40",
+                    fontSize: "16px",
                     fontWeight: "600",
                     cursor: votedValue !== null ? "pointer" : "not-allowed",
                     fontFamily: "Inter, sans-serif",
