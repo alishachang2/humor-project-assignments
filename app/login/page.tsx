@@ -1,6 +1,7 @@
 "use client";
 
 import { createBrowserClient } from "@supabase/ssr";
+import { theme } from "@/lib/theme";
 
 export default function LoginPage() {
   const supabase = createBrowserClient(
@@ -22,7 +23,7 @@ export default function LoginPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "radial-gradient(ellipse at 60% 40%, #a8294a 0%, #7b1a35 60%, #5c1228 100%)",
+        background: theme.background,
         fontFamily: "Inter, sans-serif",
       }}
     >
@@ -32,11 +33,11 @@ export default function LoginPage() {
           width: "100%",
           maxWidth: "460px",
           margin: "0 24px",
-          background: "rgba(180, 60, 90, 0.35)",
+          background: theme.card,
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
           borderRadius: "24px",
-          border: "1px solid rgba(255, 255, 255, 0.15)",
+          border: theme.border,
           padding: "52px 48px",
           display: "flex",
           flexDirection: "column",
@@ -49,7 +50,7 @@ export default function LoginPage() {
           style={{
             width: "64px",
             height: "64px",
-            background: "rgba(200, 80, 110, 0.5)",
+            background: theme.icon,
             borderRadius: "18px",
             display: "flex",
             alignItems: "center",
@@ -57,10 +58,10 @@ export default function LoginPage() {
             marginBottom: "28px",
           }}
         >
-          <svg width="32" height="32" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
+          <svg width="32" height="32" fill="none" stroke={theme.iconStroke} strokeWidth="2" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="10" strokeWidth="2" />
-            <circle cx="9" cy="9" r="1.5" fill="white" stroke="none" />
-            <circle cx="15" cy="9" r="1.5" fill="white" stroke="none" />
+            <circle cx="9" cy="9" r="1.5" fill={theme.iconStroke} stroke="none" />
+            <circle cx="15" cy="9" r="1.5" fill={theme.iconStroke} stroke="none" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 15c1.5 1.5 3 2 4 2s2.5-.5 4-2" />
           </svg>
         </div>
@@ -70,7 +71,7 @@ export default function LoginPage() {
           style={{
             fontSize: "36px",
             fontWeight: "700",
-            color: "#ffffff",
+            color: theme.textPrimary,
             margin: "0 0 10px 0",
             letterSpacing: "-0.5px",
             textAlign: "center",
@@ -83,7 +84,7 @@ export default function LoginPage() {
         <p
           style={{
             fontSize: "16px",
-            color: "rgba(255,255,255,0.75)",
+            color: theme.textSecondary,
             margin: "0 0 36px 0",
             textAlign: "center",
           }}
@@ -134,7 +135,7 @@ export default function LoginPage() {
         <p
           style={{
             fontSize: "13px",
-            color: "rgba(255,255,255,0.5)",
+            color: theme.textMuted,
             textAlign: "center",
             marginTop: "28px",
             lineHeight: "1.6",

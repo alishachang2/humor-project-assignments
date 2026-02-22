@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
+import { theme } from "@/lib/theme";
 
 export default function HomePage() {
   const router = useRouter();
@@ -34,76 +35,107 @@ export default function HomePage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "radial-gradient(ellipse at 60% 40%, #a8294a 0%, #7b1a35 60%, #5c1228 100%)",
+        background: theme.background,
         fontFamily: "Inter, sans-serif",
         display: "flex",
         flexDirection: "column",
       }}
     >
       {/* Navbar */}
-      <nav
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "20px 40px",
-          borderBottom: "1px solid rgba(255,255,255,0.1)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div
-            style={{
-              width: "36px",
-              height: "36px",
-              background: "rgba(200, 80, 110, 0.5)",
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <svg width="20" height="20" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" />
-              <circle cx="9" cy="9" r="1.5" fill="white" stroke="none" />
-              <circle cx="15" cy="9" r="1.5" fill="white" stroke="none" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 15c1.5 1.5 3 2 4 2s2.5-.5 4-2" />
-            </svg>
-          </div>
-          <span style={{ color: "#fff", fontWeight: "600", fontSize: "16px" }}>Humor</span>
-        </div>
+      {/* Navbar */}
+<div
+  style={{
+    position: "fixed",
+    top: "20px",
+    left: "0",
+    right: "0",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 24px",
+    zIndex: 50,
+  }}
+>
+  {/* Logo — left, no bubble */}
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  }}
+>
+  <div
+    style={{
+      width: "24px",
+      height: "24px",
+      background: theme.icon,
+      borderRadius: "6px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <svg width="14" height="14" fill="none" stroke={theme.iconStroke} strokeWidth="2" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="9" cy="9" r="1.5" fill={theme.iconStroke} stroke="none" />
+      <circle cx="15" cy="9" r="1.5" fill={theme.iconStroke} stroke="none" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8 15c1.5 1.5 3 2 4 2s2.5-.5 4-2" />
+    </svg>
+  </div>
+  <span style={{ color: theme.textPrimary, fontWeight: "600", fontSize: "14px" }}>Humor Project</span>
+</div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          {user.user_metadata?.avatar_url && (
-            <img
-              src={user.user_metadata.avatar_url}
-              alt="avatar"
-              style={{ width: "32px", height: "32px", borderRadius: "50%", border: "2px solid rgba(255,255,255,0.3)" }}
-            />
-          )}
-          <span style={{ color: "rgba(255,255,255,0.75)", fontSize: "14px" }}>
-            {user.user_metadata?.full_name || user.email}
-          </span>
-          <button
-            onClick={handleSignOut}
-            style={{
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: "8px",
-              color: "#fff",
-              fontSize: "14px",
-              fontWeight: "500",
-              padding: "8px 16px",
-              cursor: "pointer",
-              fontFamily: "Inter, sans-serif",
-              transition: "background 0.15s ease",
-            }}
-            onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.2)")}
-            onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.1)")}
-          >
-            Sign out
-          </button>
-        </div>
-      </nav>
+  {/* Right bubbles */}
+  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+    {/* Name bubble */}
+    <div
+      style={{
+        background: theme.card,
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        border: theme.border,
+        borderRadius: "999px",
+        padding: "8px 16px",
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        fontSize: "14px",
+        color: theme.textPrimary,
+        fontWeight: "500",
+      }}
+    >
+      {user.user_metadata?.avatar_url && (
+        <img
+          src={user.user_metadata.avatar_url}
+          alt="avatar"
+          style={{ width: "22px", height: "22px", borderRadius: "50%" }}
+        />
+      )}
+      {user.user_metadata?.given_name || user.email}
+    </div>
+
+    {/* Sign out bubble */}
+    <button
+      onClick={handleSignOut}
+      style={{
+        background: theme.signOutBg,
+        border: theme.signOutBorder,
+        borderRadius: "999px",
+        padding: "8px 16px",
+        fontSize: "14px",
+        fontWeight: "500",
+        color: theme.signOutColor,
+        cursor: "pointer",
+        fontFamily: "Inter, sans-serif",
+        transition: "opacity 0.15s ease",
+      }}
+      onMouseEnter={e => (e.currentTarget.style.opacity = "0.8")}
+      onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+    >
+      Sign out
+    </button>
+  </div>
+</div>
 
       {/* Main content */}
       <main
@@ -119,11 +151,11 @@ export default function HomePage() {
           style={{
             width: "100%",
             maxWidth: "560px",
-            background: "rgba(180, 60, 90, 0.35)",
+            background: theme.card,
             backdropFilter: "blur(20px)",
             WebkitBackdropFilter: "blur(20px)",
             borderRadius: "24px",
-            border: "1px solid rgba(255, 255, 255, 0.15)",
+            border: theme.border,
             padding: "52px 48px",
             textAlign: "center",
           }}
@@ -132,15 +164,15 @@ export default function HomePage() {
             style={{
               fontSize: "36px",
               fontWeight: "700",
-              color: "#ffffff",
+              color: theme.textPrimary,
               margin: "0 0 12px 0",
               letterSpacing: "-0.5px",
             }}
           >
             Hey, {user.user_metadata?.given_name || "there"} 👋
           </h1>
-          <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.7)", margin: "0" }}>
-            You're signed in as <strong style={{ color: "#fff" }}>{user.email}</strong>
+          <p style={{ fontSize: "16px", color: theme.textSecondary, margin: "0" }}>
+            You're signed in as <strong style={{ color: theme.textPrimary }}>{user.email}</strong>
           </p>
         </div>
       </main>
