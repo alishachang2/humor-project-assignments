@@ -1,5 +1,8 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Live Demo
+[![Live Site](https://img.shields.io/badge/View_Live_Site-blue)](https://humor-project-assignments-3w89q5izm-alishachang2s-projects.vercel.app)
+
 ## Getting Started
 
 First, run the development server:
@@ -15,9 +18,6 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Vercel
-humor-project-assignments-3w89q5izm-alishachang2s-projects.vercel.app
 
 ## Learn More
 
