@@ -33,13 +33,20 @@ export default function HomePage() {
       else setUser(data.user);
     });
 
-    supabase
-      .from("captions")
-      .select("id, content")
-      .limit(10)
-      .then(({ data }) => {
-        if (data) setCaptions(data);
-      });
+    const { count } = await supabase
+  .from("captions")
+  .select("*", { count: "exact", head: true });
+
+const total = count ?? 0;
+const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
+
+supabase
+  .from("captions")
+  .select("id, content")
+  .range(randomOffset, randomOffset + 9)
+  .then(({ data }) => {
+    if (data) setCaptions(data);
+  });
 
     const timer = setTimeout(() => setShowGreeting(false), 5000);
     return () => clearTimeout(timer);
