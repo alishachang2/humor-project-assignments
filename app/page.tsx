@@ -51,6 +51,7 @@ export default function HomePage() {
       caption_id: caption.id,
       profile_id: user.id,
       vote_value: voteValue,
+      created_datetime_utc: new Date().toISOString(),
     });
 
     if (error) {
@@ -259,7 +260,7 @@ export default function HomePage() {
                   fontWeight: "600",
                   color: theme.textPrimary,
                   lineHeight: "1.4",
-                  margin: "0",
+                  margin: "0 0 16px 0",
                   minHeight: "80px",
                   display: "flex",
                   alignItems: "center",
@@ -270,38 +271,47 @@ export default function HomePage() {
               </p>
 
               {/* Vote buttons */}
-              <div style={{ display: "flex", gap: "16px", width: "100%" }}>
-                <button
-                  onClick={() => handleVote(-1)}
-                  style={{
-                    flex: 1,
-                    padding: "20px",
-                    fontSize: "32px",
-                    borderRadius: "16px",
-                    border: votedValue === -1 ? "2px solid #f87171" : "2px solid #ffffff15",
-                    background: votedValue === -1 ? "#f8717122" : "#ffffff08",
-                    cursor: votedValue !== null ? "default" : "pointer",
-                    transition: "all 0.15s ease",
-                    transform: votedValue === -1 ? "scale(1.05)" : "scale(1)",
-                  }}
-                >
-                  👎
-                </button>
+              <div style={{ display: "flex", gap: "24px", width: "100%" }}>
                 <button
                   onClick={() => handleVote(1)}
                   style={{
                     flex: 1,
-                    padding: "20px",
-                    fontSize: "32px",
+                    padding: "28px",
                     borderRadius: "16px",
-                    border: votedValue === 1 ? "2px solid #4ade80" : "2px solid #ffffff15",
-                    background: votedValue === 1 ? "#4ade8022" : "#ffffff08",
+                    border: votedValue === 1 ? "2px solid #e8450a" : "2px solid #ffffff15",
+                    background: votedValue === 1 ? "#e8450a22" : "#ffffff08",
                     cursor: votedValue !== null ? "default" : "pointer",
                     transition: "all 0.15s ease",
                     transform: votedValue === 1 ? "scale(1.05)" : "scale(1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  👍
+                  <svg width="52" height="52" viewBox="0 0 24 24" fill={votedValue === 1 ? "#e8450a" : "#ffffff55"} style={{ transition: "fill 0.15s ease" }}>
+                    <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
+                  </svg>
+                </button>
+
+                <button
+                  onClick={() => handleVote(-1)}
+                  style={{
+                    flex: 1,
+                    padding: "28px",
+                    borderRadius: "16px",
+                    border: votedValue === -1 ? "2px solid #8b8fe8" : "2px solid #ffffff15",
+                    background: votedValue === -1 ? "#8b8fe822" : "#ffffff08",
+                    cursor: votedValue !== null ? "default" : "pointer",
+                    transition: "all 0.15s ease",
+                    transform: votedValue === -1 ? "scale(1.05)" : "scale(1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <svg width="52" height="52" viewBox="0 0 24 24" fill={votedValue === -1 ? "#8b8fe8" : "#ffffff55"} style={{ transition: "fill 0.15s ease" }}>
+                    <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
+                  </svg>
                 </button>
               </div>
 
