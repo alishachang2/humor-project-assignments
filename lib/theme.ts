@@ -9,7 +9,7 @@ export const theme = {
   `,
 
   // Glass card — warm cream white, readable
-  card: "rgba(255, 250, 240, 0.8)",
+  card: "rgba(255, 250, 240, 0.53)",
 
   // Icon box
   icon: "rgba(220, 100, 60, 0.15)",

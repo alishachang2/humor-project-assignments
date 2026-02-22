@@ -10,6 +10,9 @@ type Caption = {
   content: string;
 };
 
+const UPVOTE_COLOR = "#22c55e";
+const DOWNVOTE_COLOR = "#ef4444";
+
 export default function HomePage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
@@ -17,6 +20,7 @@ export default function HomePage() {
   const [index, setIndex] = useState(0);
   const [votedValue, setVotedValue] = useState<1 | -1 | null>(null);
   const [done, setDone] = useState(false);
+  const [showGreeting, setShowGreeting] = useState(true);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -36,6 +40,9 @@ export default function HomePage() {
       .then(({ data }) => {
         if (data) setCaptions(data);
       });
+
+    const timer = setTimeout(() => setShowGreeting(false), 5000);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSignOut = async () => {
@@ -79,6 +86,40 @@ export default function HomePage() {
         flexDirection: "column",
       }}
     >
+      <style>{`
+        .glass {
+          position: relative;
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(2px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.8);
+          border-radius: 2rem;
+          box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2), 
+                      inset 0 4px 20px rgba(255, 255, 255, 0.3);
+        }
+        .glass::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 2rem;
+          backdrop-filter: blur(1px);
+          box-shadow: inset -10px -8px 0px -11px rgba(255, 255, 255, 1),
+                      inset 0px -9px 0px -8px rgba(255, 255, 255, 1);
+          opacity: 0.6;
+          z-index: -1;
+          filter: blur(1px) drop-shadow(10px 4px 6px black) brightness(115%);
+        }
+        @keyframes fadeInOut {
+          0%   { opacity: 0; transform: translateY(8px); }
+          15%  { opacity: 1; transform: translateY(0); }
+          80%  { opacity: 1; transform: translateY(0); }
+          100% { opacity: 0; transform: translateY(-8px); }
+        }
+      `}</style>
+
       {/* Navbar */}
       <div
         style={{
@@ -171,41 +212,12 @@ export default function HomePage() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          justifyContent: "center",
           padding: "120px 24px 40px",
           gap: "16px",
         }}
       >
-        {/* Hey there card */}
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "560px",
-            background: theme.card,
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            borderRadius: "24px",
-            border: theme.border,
-            padding: "52px 48px",
-            textAlign: "center",
-          }}
-        >
-          <h1
-            style={{
-              fontSize: "36px",
-              fontWeight: "700",
-              color: theme.textPrimary,
-              margin: "0 0 12px 0",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Hey, {user.user_metadata?.given_name || "there"} 👋
-          </h1>
-          <p style={{ fontSize: "16px", color: theme.textSecondary, margin: "0" }}>
-            You're signed in as <strong style={{ color: theme.textPrimary }}>{user.email}</strong>
-          </p>
-        </div>
-
-        {done || captions.length === 0 ? (
+        {showGreeting ? (
           <div
             style={{
               width: "100%",
@@ -215,141 +227,171 @@ export default function HomePage() {
               WebkitBackdropFilter: "blur(20px)",
               borderRadius: "24px",
               border: theme.border,
-              padding: "40px 48px",
+              padding: "52px 48px",
               textAlign: "center",
+              animation: "fadeInOut 5s ease forwards",
             }}
           >
-            <p style={{ fontSize: "18px", color: theme.textPrimary, fontWeight: "600", margin: 0 }}>
-              {captions.length === 0 ? "No captions found." : "You've rated all captions! 🎉"}
+            <h1
+              style={{
+                fontSize: "36px",
+                fontWeight: "700",
+                color: theme.textPrimary,
+                margin: "0 0 12px 0",
+                letterSpacing: "-0.5px",
+              }}
+            >
+              Hey, {user.user_metadata?.given_name || "there"} 👋
+            </h1>
+            <p style={{ fontSize: "16px", color: theme.textSecondary, margin: "0" }}>
+              You're signed in as <strong style={{ color: theme.textPrimary }}>{user.email}</strong>
             </p>
           </div>
         ) : (
           <>
-            {/* Progress */}
-            <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "8px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: theme.textSecondary }}>
-                <span>Rate this caption</span>
-                <span>{index + 1} / {captions.length}</span>
-              </div>
-              <div style={{ width: "100%", height: "4px", background: "#ffffff15", borderRadius: "999px", overflow: "hidden" }}>
-                <div
-                  style={{
-                    height: "100%",
-                    width: `${((index + (votedValue !== null ? 1 : 0)) / captions.length) * 100}%`,
-                    background: theme.icon,
-                    borderRadius: "999px",
-                    transition: "width 0.3s ease",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Caption + voting card */}
-            <div
-              style={{
-                width: "100%",
-                maxWidth: "560px",
-                background: theme.card,
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                borderRadius: "24px",
-                border: theme.border,
-                padding: "36px 36px 28px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "24px",
-                textAlign: "center",
-              }}
-            >
-              {/* Caption text */}
-              <p
-                style={{
-                  fontSize: "22px",
-                  fontWeight: "600",
-                  color: theme.textPrimary,
-                  lineHeight: "1.4",
-                  margin: "0",
-                  minHeight: "60px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {caption?.content}
-              </p>
-
-              {/* Divider */}
-              <div style={{ width: "100%", height: "1px", background: "#ffffff10" }} />
-
-              {/* Vote buttons - side by side */}
-              <div style={{ display: "flex", gap: "16px", width: "100%" }}>
-                <button
-                  onClick={() => setVotedValue(1)}
-                  style={{
-                    flex: 1,
-                    padding: "22px 0",
-                    borderRadius: "16px",
-                    border: votedValue === 1 ? "2px solid #e8450a" : "2px solid #e8450a88",
-                    background: votedValue === 1 ? "#e8450a33" : "#e8450a11",
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    transform: votedValue === 1 ? "scale(1.04)" : "scale(1)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <svg width="38" height="38" viewBox="0 0 24 24" fill={votedValue === 1 ? "#e8450a" : "#e8450acc"} style={{ transition: "fill 0.15s ease" }}>
-                    <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
-                  </svg>
-                </button>
-
-                <button
-                  onClick={() => setVotedValue(-1)}
-                  style={{
-                    flex: 1,
-                    padding: "22px 0",
-                    borderRadius: "16px",
-                    border: votedValue === -1 ? "2px solid #8b8fe8" : "2px solid #8b8fe888",
-                    background: votedValue === -1 ? "#8b8fe833" : "#8b8fe811",
-                    cursor: "pointer",
-                    transition: "all 0.15s ease",
-                    transform: votedValue === -1 ? "scale(1.04)" : "scale(1)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <svg width="38" height="38" viewBox="0 0 24 24" fill={votedValue === -1 ? "#8b8fe8" : "#8b8fe8cc"} style={{ transition: "fill 0.15s ease" }}>
-                    <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Next button — always visible, disabled until voted */}
-              <button
-                onClick={handleNext}
-                disabled={votedValue === null}
+            {done || captions.length === 0 ? (
+              <div
                 style={{
                   width: "100%",
-                  padding: "16px",
-                  borderRadius: "14px",
-                  border: "none",
-                  background: votedValue !== null ? theme.icon : "#ffffff15",
-                  color: votedValue !== null ? "#fff" : "#ffffff40",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  cursor: votedValue !== null ? "pointer" : "not-allowed",
-                  fontFamily: "Inter, sans-serif",
-                  transition: "all 0.2s ease",
+                  maxWidth: "560px",
+                  background: theme.card,
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  borderRadius: "24px",
+                  border: theme.border,
+                  padding: "40px 48px",
+                  textAlign: "center",
                 }}
-                onMouseEnter={e => { if (votedValue !== null) e.currentTarget.style.opacity = "0.85"; }}
-                onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
               >
-                {index + 1 >= captions.length ? "Finish" : "Next →"}
-              </button>
-            </div>
+                <p style={{ fontSize: "18px", color: theme.textPrimary, fontWeight: "600", margin: 0 }}>
+                  {captions.length === 0 ? "No captions found." : "You've rated all captions! 🎉"}
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Progress */}
+                <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: theme.textSecondary }}>
+                    <span>Rate this caption</span>
+                    <span>{index + 1} / {captions.length}</span>
+                  </div>
+                  <div style={{ width: "100%", height: "4px", background: "#ffffff15", borderRadius: "999px", overflow: "hidden" }}>
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${((index + (votedValue !== null ? 1 : 0)) / captions.length) * 100}%`,
+                        background: theme.icon,
+                        borderRadius: "999px",
+                        transition: "width 0.3s ease",
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Caption + voting card — glass effect */}
+                <div
+                  className="glass"
+                  style={{
+                    width: "100%",
+                    maxWidth: "560px",
+                    padding: "36px 36px 28px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "24px",
+                    textAlign: "center",
+                  }}
+                >
+                  {/* Caption text */}
+                  <p
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: "600",
+                      color: theme.textPrimary,
+                      lineHeight: "1.4",
+                      margin: "0",
+                      minHeight: "60px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {caption?.content}
+                  </p>
+
+                  {/* Divider */}
+                  <div style={{ width: "100%", height: "1px", background: "rgba(255,255,255,0.15)" }} />
+
+                  {/* Vote buttons */}
+                  <div style={{ display: "flex", gap: "16px", width: "100%" }}>
+                    <button
+                      onClick={() => setVotedValue(1)}
+                      style={{
+                        flex: 1,
+                        padding: "22px 0",
+                        borderRadius: "16px",
+                        border: votedValue === 1 ? `2px solid ${UPVOTE_COLOR}` : `2px solid ${UPVOTE_COLOR}88`,
+                        background: votedValue === 1 ? `${UPVOTE_COLOR}33` : `${UPVOTE_COLOR}11`,
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                        transform: votedValue === 1 ? "scale(1.04)" : "scale(1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <svg width="38" height="38" viewBox="0 0 24 24" fill={votedValue === 1 ? UPVOTE_COLOR : `${UPVOTE_COLOR}cc`} style={{ transition: "fill 0.15s ease" }}>
+                        <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
+                      </svg>
+                    </button>
+
+                    <button
+                      onClick={() => setVotedValue(-1)}
+                      style={{
+                        flex: 1,
+                        padding: "22px 0",
+                        borderRadius: "16px",
+                        border: votedValue === -1 ? `2px solid ${DOWNVOTE_COLOR}` : `2px solid ${DOWNVOTE_COLOR}88`,
+                        background: votedValue === -1 ? `${DOWNVOTE_COLOR}33` : `${DOWNVOTE_COLOR}11`,
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                        transform: votedValue === -1 ? "scale(1.04)" : "scale(1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <svg width="38" height="38" viewBox="0 0 24 24" fill={votedValue === -1 ? DOWNVOTE_COLOR : `${DOWNVOTE_COLOR}cc`} style={{ transition: "fill 0.15s ease" }}>
+                        <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Next button — always visible, disabled until voted */}
+                  <button
+                    onClick={handleNext}
+                    disabled={votedValue === null}
+                    style={{
+                      width: "100%",
+                      padding: "16px",
+                      borderRadius: "14px",
+                      border: "none",
+                      background: votedValue !== null ? theme.icon : "#ffffff15",
+                      color: votedValue !== null ? "#fff" : "#ffffff40",
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      cursor: votedValue !== null ? "pointer" : "not-allowed",
+                      fontFamily: "Inter, sans-serif",
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={e => { if (votedValue !== null) e.currentTarget.style.opacity = "0.85"; }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
+                  >
+                    {index + 1 >= captions.length ? "Finish" : "Next →"}
+                  </button>
+                </div>
+              </>
+            )}
           </>
         )}
       </main>
