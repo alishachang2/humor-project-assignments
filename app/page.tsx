@@ -93,35 +93,6 @@ export default function HomePage() {
           80%  { opacity: 1; transform: translateY(0); }
           100% { opacity: 0; transform: translateY(-8px); }
         }
-
-        .liquid-glass {
-          position: relative;
-          border-radius: 30px;
-          isolation: isolate;
-        }
-        .liquid-glass::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-          overflow: hidden;
-          border-radius: 30px;
-          box-shadow: inset 2px 2px 0px -2px rgba(255, 255, 255, 0.7),
-                      inset 0 0 3px 1px rgba(255, 255, 255, 0.7);
-          pointer-events: none;
-        }
-        .liquid-glass::after {
-          content: '';
-          position: absolute;
-          z-index: -1;
-          inset: 0;
-          border-radius: 30px;
-          backdrop-filter: blur(12px) saturate(180%);
-          -webkit-backdrop-filter: blur(12px) saturate(180%);
-          background: rgba(255, 255, 255, 0.12);
-          overflow: hidden;
-          pointer-events: none;
-        }
       `}</style>
 
       {/* Navbar */}
@@ -233,7 +204,7 @@ export default function HomePage() {
               border: theme.border,
               padding: "52px 48px",
               textAlign: "center",
-              animation: "fadeInOut 5s ease forwards",
+              animation: "fadeInOut 2s ease forwards",
             }}
           >
             <h1
@@ -273,10 +244,14 @@ export default function HomePage() {
               </div>
             ) : (
               <div
-                className="liquid-glass"
                 style={{
                   width: "100%",
                   maxWidth: "560px",
+                  background: theme.card,
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  borderRadius: "24px",
+                  border: theme.border,
                   padding: "52px 48px",
                   display: "flex",
                   flexDirection: "column",
@@ -286,12 +261,12 @@ export default function HomePage() {
                 }}
               >
                 {/* Progress */}
-                <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px", position: "relative", zIndex: 1 }}>
+                <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: theme.textSecondary }}>
                     <span>Rate this caption</span>
                     <span>{index + 1} / {captions.length}</span>
                   </div>
-                  <div style={{ width: "100%", height: "4px", background: "#ffffff20", borderRadius: "999px", overflow: "hidden" }}>
+                  <div style={{ width: "100%", height: "4px", background: "#ffffff15", borderRadius: "999px", overflow: "hidden" }}>
                     <div
                       style={{
                         height: "100%",
@@ -305,7 +280,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Divider */}
-                <div style={{ width: "100%", height: "1px", background: "rgba(255,255,255,0.2)", position: "relative", zIndex: 1 }} />
+                <div style={{ width: "100%", height: "1px", background: "#ffffff10" }} />
 
                 {/* Caption text */}
                 <p
@@ -319,18 +294,14 @@ export default function HomePage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    position: "relative",
-                    zIndex: 1,
                   }}
                 >
                   {caption?.content}
                 </p>
 
-                {/* Divider */}
-                <div style={{ width: "100%", height: "1px", background: "rgba(255,255,255,0.2)", position: "relative", zIndex: 1 }} />
-
-                {/* Vote buttons */}
-                <div style={{ display: "flex", gap: "12px", width: "60%", position: "relative", zIndex: 1 }}>
+                
+                {/* Vote buttons — smaller, centered */}
+                <div style={{ display: "flex", gap: "12px", width: "60%" }}>
                   <button
                     onClick={() => setVotedValue(1)}
                     style={{
@@ -390,8 +361,6 @@ export default function HomePage() {
                     cursor: votedValue !== null ? "pointer" : "not-allowed",
                     fontFamily: "Inter, sans-serif",
                     transition: "all 0.2s ease",
-                    position: "relative",
-                    zIndex: 1,
                   }}
                   onMouseEnter={e => { if (votedValue !== null) e.currentTarget.style.opacity = "0.85"; }}
                   onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
