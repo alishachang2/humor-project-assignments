@@ -44,18 +44,17 @@ export default function HomePage() {
   };
 
   const handleNext = async () => {
-    if (votedValue !== null) {
-      const caption = captions[index];
-      const { error } = await supabase.from("caption_votes").insert({
-        caption_id: caption.id,
-        profile_id: user.id,
-        vote_value: votedValue,
-        created_datetime_utc: new Date().toISOString(),
-      });
-      if (error) {
-        alert("Failed to submit vote: " + error.message);
-        return;
-      }
+    if (votedValue === null) return;
+    const caption = captions[index];
+    const { error } = await supabase.from("caption_votes").insert({
+      caption_id: caption.id,
+      profile_id: user.id,
+      vote_value: votedValue,
+      created_datetime_utc: new Date().toISOString(),
+    });
+    if (error) {
+      alert("Failed to submit vote: " + error.message);
+      return;
     }
 
     if (index + 1 >= captions.length) {
@@ -245,7 +244,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Caption card */}
+            {/* Caption + voting card */}
             <div
               style={{
                 width: "100%",
@@ -255,10 +254,15 @@ export default function HomePage() {
                 WebkitBackdropFilter: "blur(20px)",
                 borderRadius: "24px",
                 border: theme.border,
-                padding: "36px 48px",
+                padding: "36px 36px 28px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "24px",
                 textAlign: "center",
               }}
             >
+              {/* Caption text */}
               <p
                 style={{
                   fontSize: "22px",
@@ -274,83 +278,78 @@ export default function HomePage() {
               >
                 {caption?.content}
               </p>
-            </div>
 
-            {/* Vote buttons - side by side */}
-            <div style={{ display: "flex", gap: "16px", width: "100%", maxWidth: "560px" }}>
-              {/* Upvote */}
-              <button
-                onClick={() => setVotedValue(1)}
-                style={{
-                  flex: 1,
-                  padding: "36px 0",
-                  borderRadius: "24px",
-                  border: votedValue === 1 ? "2px solid #e8450a" : "2px solid #e8450a88",
-                  background: votedValue === 1 ? "#e8450a33" : "#e8450a11",
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  transform: votedValue === 1 ? "scale(1.04)" : "scale(1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <svg width="56" height="56" viewBox="0 0 24 24" fill={votedValue === 1 ? "#e8450a" : "#e8450acc"} style={{ transition: "fill 0.15s ease" }}>
-                  <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
-                </svg>
-              </button>
+              {/* Divider */}
+              <div style={{ width: "100%", height: "1px", background: "#ffffff10" }} />
 
-              {/* Downvote */}
-              <button
-                onClick={() => setVotedValue(-1)}
-                style={{
-                  flex: 1,
-                  padding: "36px 0",
-                  borderRadius: "24px",
-                  border: votedValue === -1 ? "2px solid #8b8fe8" : "2px solid #8b8fe888",
-                  background: votedValue === -1 ? "#8b8fe833" : "#8b8fe811",
-                  backdropFilter: "blur(20px)",
-                  WebkitBackdropFilter: "blur(20px)",
-                  cursor: "pointer",
-                  transition: "all 0.15s ease",
-                  transform: votedValue === -1 ? "scale(1.04)" : "scale(1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <svg width="56" height="56" viewBox="0 0 24 24" fill={votedValue === -1 ? "#8b8fe8" : "#8b8fe8cc"} style={{ transition: "fill 0.15s ease" }}>
-                  <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
-                </svg>
-              </button>
-            </div>
+              {/* Vote buttons - side by side */}
+              <div style={{ display: "flex", gap: "16px", width: "100%" }}>
+                <button
+                  onClick={() => setVotedValue(1)}
+                  style={{
+                    flex: 1,
+                    padding: "22px 0",
+                    borderRadius: "16px",
+                    border: votedValue === 1 ? "2px solid #e8450a" : "2px solid #e8450a88",
+                    background: votedValue === 1 ? "#e8450a33" : "#e8450a11",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    transform: votedValue === 1 ? "scale(1.04)" : "scale(1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <svg width="38" height="38" viewBox="0 0 24 24" fill={votedValue === 1 ? "#e8450a" : "#e8450acc"} style={{ transition: "fill 0.15s ease" }}>
+                    <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
+                  </svg>
+                </button>
 
-            {/* Next button — only appears after voting */}
-            {votedValue !== null && (
+                <button
+                  onClick={() => setVotedValue(-1)}
+                  style={{
+                    flex: 1,
+                    padding: "22px 0",
+                    borderRadius: "16px",
+                    border: votedValue === -1 ? "2px solid #8b8fe8" : "2px solid #8b8fe888",
+                    background: votedValue === -1 ? "#8b8fe833" : "#8b8fe811",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    transform: votedValue === -1 ? "scale(1.04)" : "scale(1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <svg width="38" height="38" viewBox="0 0 24 24" fill={votedValue === -1 ? "#8b8fe8" : "#8b8fe8cc"} style={{ transition: "fill 0.15s ease" }}>
+                    <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Next button — always visible, disabled until voted */}
               <button
                 onClick={handleNext}
+                disabled={votedValue === null}
                 style={{
                   width: "100%",
-                  maxWidth: "560px",
                   padding: "16px",
                   borderRadius: "14px",
                   border: "none",
-                  background: theme.icon,
-                  color: "#fff",
+                  background: votedValue !== null ? theme.icon : "#ffffff15",
+                  color: votedValue !== null ? "#fff" : "#ffffff40",
                   fontSize: "16px",
                   fontWeight: "600",
-                  cursor: "pointer",
+                  cursor: votedValue !== null ? "pointer" : "not-allowed",
                   fontFamily: "Inter, sans-serif",
-                  transition: "opacity 0.15s ease",
+                  transition: "all 0.2s ease",
                 }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+                onMouseEnter={e => { if (votedValue !== null) e.currentTarget.style.opacity = "0.85"; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
               >
                 {index + 1 >= captions.length ? "Finish" : "Next →"}
               </button>
-            )}
+            </div>
           </>
         )}
       </main>
