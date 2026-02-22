@@ -43,25 +43,21 @@ export default function HomePage() {
     router.push("/login");
   };
 
-  const handleVote = async (voteValue: 1 | -1) => {
-    if (!user || votedValue !== null) return;
-    const caption = captions[index];
-
-    const { error } = await supabase.from("caption_votes").insert({
-      caption_id: caption.id,
-      profile_id: user.id,
-      vote_value: voteValue,
-      created_datetime_utc: new Date().toISOString(),
-    });
-
-    if (error) {
-      alert("Failed to submit vote: " + error.message);
-    } else {
-      setVotedValue(voteValue);
+  const handleNext = async () => {
+    if (votedValue !== null) {
+      const caption = captions[index];
+      const { error } = await supabase.from("caption_votes").insert({
+        caption_id: caption.id,
+        profile_id: user.id,
+        vote_value: votedValue,
+        created_datetime_utc: new Date().toISOString(),
+      });
+      if (error) {
+        alert("Failed to submit vote: " + error.message);
+        return;
+      }
     }
-  };
 
-  const handleNext = () => {
     if (index + 1 >= captions.length) {
       setDone(true);
     } else {
@@ -177,7 +173,7 @@ export default function HomePage() {
           flexDirection: "column",
           alignItems: "center",
           padding: "120px 24px 40px",
-          gap: "24px",
+          gap: "16px",
         }}
       >
         {/* Hey there card */}
@@ -210,58 +206,67 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Caption voting card */}
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "560px",
-            background: theme.card,
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            borderRadius: "24px",
-            border: theme.border,
-            padding: "40px 48px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "32px",
-            textAlign: "center",
-          }}
-        >
-          {done || captions.length === 0 ? (
-            <p style={{ fontSize: "18px", color: theme.textPrimary, fontWeight: "600" }}>
+        {done || captions.length === 0 ? (
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "560px",
+              background: theme.card,
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              borderRadius: "24px",
+              border: theme.border,
+              padding: "40px 48px",
+              textAlign: "center",
+            }}
+          >
+            <p style={{ fontSize: "18px", color: theme.textPrimary, fontWeight: "600", margin: 0 }}>
               {captions.length === 0 ? "No captions found." : "You've rated all captions! 🎉"}
             </p>
-          ) : (
-            <>
-              {/* Progress */}
-              <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: theme.textSecondary }}>
-                  <span>Rate this caption</span>
-                  <span>{index + 1} / {captions.length}</span>
-                </div>
-                <div style={{ width: "100%", height: "4px", background: "#ffffff15", borderRadius: "999px", overflow: "hidden" }}>
-                  <div
-                    style={{
-                      height: "100%",
-                      width: `${((index + (votedValue !== null ? 1 : 0)) / captions.length) * 100}%`,
-                      background: theme.icon,
-                      borderRadius: "999px",
-                      transition: "width 0.3s ease",
-                    }}
-                  />
-                </div>
+          </div>
+        ) : (
+          <>
+            {/* Progress */}
+            <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: theme.textSecondary }}>
+                <span>Rate this caption</span>
+                <span>{index + 1} / {captions.length}</span>
               </div>
+              <div style={{ width: "100%", height: "4px", background: "#ffffff15", borderRadius: "999px", overflow: "hidden" }}>
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${((index + (votedValue !== null ? 1 : 0)) / captions.length) * 100}%`,
+                    background: theme.icon,
+                    borderRadius: "999px",
+                    transition: "width 0.3s ease",
+                  }}
+                />
+              </div>
+            </div>
 
-              {/* Caption text */}
+            {/* Caption card */}
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "560px",
+                background: theme.card,
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                borderRadius: "24px",
+                border: theme.border,
+                padding: "36px 48px",
+                textAlign: "center",
+              }}
+            >
               <p
                 style={{
                   fontSize: "22px",
                   fontWeight: "600",
                   color: theme.textPrimary,
                   lineHeight: "1.4",
-                  margin: "0 0 16px 0",
-                  minHeight: "80px",
+                  margin: "0",
+                  minHeight: "60px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -269,78 +274,84 @@ export default function HomePage() {
               >
                 {caption?.content}
               </p>
+            </div>
 
-              {/* Vote buttons */}
-              <div style={{ display: "flex", gap: "24px", width: "100%" }}>
-                <button
-                  onClick={() => handleVote(1)}
-                  style={{
-                    flex: 1,
-                    padding: "28px",
-                    borderRadius: "16px",
-                    border: votedValue === 1 ? "2px solid #e8450a" : "2px solid #ffffff15",
-                    background: votedValue === 1 ? "#e8450a22" : "#ffffff08",
-                    cursor: votedValue !== null ? "default" : "pointer",
-                    transition: "all 0.15s ease",
-                    transform: votedValue === 1 ? "scale(1.05)" : "scale(1)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <svg width="52" height="52" viewBox="0 0 24 24" fill={votedValue === 1 ? "#e8450a" : "#ffffff55"} style={{ transition: "fill 0.15s ease" }}>
-                    <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
-                  </svg>
-                </button>
+            {/* Upvote card */}
+            <button
+              onClick={() => setVotedValue(1)}
+              style={{
+                width: "100%",
+                maxWidth: "560px",
+                padding: "28px",
+                borderRadius: "24px",
+                border: votedValue === 1 ? "2px solid #e8450a" : theme.border,
+                background: votedValue === 1 ? "#e8450a22" : theme.card,
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+                transform: votedValue === 1 ? "scale(1.02)" : "scale(1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <svg width="52" height="52" viewBox="0 0 24 24" fill={votedValue === 1 ? "#e8450a" : "#ffffff55"} style={{ transition: "fill 0.15s ease" }}>
+                <path d="M12 2L4 12h5v9h6v-9h5L12 2z" />
+              </svg>
+            </button>
 
-                <button
-                  onClick={() => handleVote(-1)}
-                  style={{
-                    flex: 1,
-                    padding: "28px",
-                    borderRadius: "16px",
-                    border: votedValue === -1 ? "2px solid #8b8fe8" : "2px solid #ffffff15",
-                    background: votedValue === -1 ? "#8b8fe822" : "#ffffff08",
-                    cursor: votedValue !== null ? "default" : "pointer",
-                    transition: "all 0.15s ease",
-                    transform: votedValue === -1 ? "scale(1.05)" : "scale(1)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <svg width="52" height="52" viewBox="0 0 24 24" fill={votedValue === -1 ? "#8b8fe8" : "#ffffff55"} style={{ transition: "fill 0.15s ease" }}>
-                    <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
-                  </svg>
-                </button>
-              </div>
+            {/* Downvote card */}
+            <button
+              onClick={() => setVotedValue(-1)}
+              style={{
+                width: "100%",
+                maxWidth: "560px",
+                padding: "28px",
+                borderRadius: "24px",
+                border: votedValue === -1 ? "2px solid #8b8fe8" : theme.border,
+                background: votedValue === -1 ? "#8b8fe822" : theme.card,
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+                transform: votedValue === -1 ? "scale(1.02)" : "scale(1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <svg width="52" height="52" viewBox="0 0 24 24" fill={votedValue === -1 ? "#8b8fe8" : "#ffffff55"} style={{ transition: "fill 0.15s ease" }}>
+                <path d="M12 22L20 12h-5V3H9v9H4l8 10z" />
+              </svg>
+            </button>
 
-              {/* Next button — only appears after voting */}
-              {votedValue !== null && (
-                <button
-                  onClick={handleNext}
-                  style={{
-                    width: "100%",
-                    padding: "16px",
-                    borderRadius: "14px",
-                    border: "none",
-                    background: theme.icon,
-                    color: "#fff",
-                    fontSize: "16px",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                    fontFamily: "Inter, sans-serif",
-                    transition: "opacity 0.15s ease",
-                  }}
-                  onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-                  onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
-                >
-                  {index + 1 >= captions.length ? "Finish" : "Next →"}
-                </button>
-              )}
-            </>
-          )}
-        </div>
+            {/* Next button — only appears after voting */}
+            {votedValue !== null && (
+              <button
+                onClick={handleNext}
+                style={{
+                  width: "100%",
+                  maxWidth: "560px",
+                  padding: "16px",
+                  borderRadius: "14px",
+                  border: "none",
+                  background: theme.icon,
+                  color: "#fff",
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  fontFamily: "Inter, sans-serif",
+                  transition: "opacity 0.15s ease",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+              >
+                {index + 1 >= captions.length ? "Finish" : "Next →"}
+              </button>
+            )}
+          </>
+        )}
       </main>
     </div>
   );
