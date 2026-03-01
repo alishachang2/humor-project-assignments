@@ -309,7 +309,7 @@ export default function HomePage() {
                 <div style={{ width: "100%", height: "1px", background: "#ffffff10" }} />
 
                 {/* Image */}
-                <img src={caption.imageUrl} alt={caption.content} height="500" style={{ width: "100%", borderRadius: "12px" }} />
+                <img src={caption.imageUrl} alt={caption.content} height="300" style={{ width: "100%", borderRadius: "12px" }} />
 
                 {/* Caption text */}
                 <p
