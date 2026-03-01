@@ -8,6 +8,7 @@ import { theme } from "@/lib/theme";
 type Caption = {
   id: string;
   content: string;
+  images: {url: string}[];
 };
 
 const UPVOTE_COLOR = "#22c55e";
@@ -43,7 +44,7 @@ export default function HomePage() {
 
     const { data } = await supabase
       .from("captions")
-      .select("id, content")
+      .select("id, content, images!image_id(url)")
       .range(randomOffset, randomOffset + 9);
 
     if (data) setCaptions(data);
@@ -291,7 +292,7 @@ export default function HomePage() {
 
                 {/* Divider */}
                 <div style={{ width: "100%", height: "1px", background: "#ffffff10" }} />
-
+                <img src={caption.images[0].url} alt={caption.content} />
                 {/* Caption text */}
                 <p
                   style={{
