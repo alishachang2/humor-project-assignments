@@ -21,7 +21,6 @@ export default function HomePage() {
   const [captions, setCaptions] = useState<Caption[]>([]);
   const [index, setIndex] = useState(0);
   const [votedValue, setVotedValue] = useState<1 | -1 | null>(null);
-  const [done, setDone] = useState(false);
   const [showGreeting, setShowGreeting] = useState(true);
 
   const supabase = createBrowserClient(
@@ -30,43 +29,42 @@ export default function HomePage() {
   );
 
   const loadCaptions = async () => {
-      const { count } = await supabase
-        .from("captions")
-        .select("*", { count: "exact", head: true });
+    const { count } = await supabase
+      .from("captions")
+      .select("*", { count: "exact", head: true });
 
-      const total = count ?? 0;
-      const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
+    const total = count ?? 0;
+    const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
 
-      const { data } = await supabase
-        .from("captions")
-        .select("id, content, image_id")
-        .range(randomOffset, randomOffset + 9);
-      if (data) {
-        const captionsWithImages = await Promise.all(
-          data.map(async (caption) => {
-            const { data: imageData } = await supabase
-              .from("images")
-              .select("url")
-              .eq("id", caption.image_id)
-              .single();
-            return { ...caption, imageUrl: imageData?.url };
-          })
-        );
-        console.log("captionsWithImages:", captionsWithImages);
-        setCaptions(captionsWithImages);
-      }
-    };
-    
+    const { data } = await supabase
+      .from("captions")
+      .select("id, content, image_id")
+      .range(randomOffset, randomOffset + 9);
+
+    if (data) {
+      const captionsWithImages = await Promise.all(
+        data.map(async (caption) => {
+          const { data: imageData } = await supabase
+            .from("images")
+            .select("url")
+            .eq("id", caption.image_id)
+            .single();
+          return { ...caption, imageUrl: imageData?.url };
+        })
+      );
+      setCaptions(captionsWithImages);
+    }
+  };
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) router.push("/login");
       else setUser(data.user);
     });
 
-
     loadCaptions();
 
-    const timer = setTimeout(() => setShowGreeting(false), 5000);
+    const timer = setTimeout(() => setShowGreeting(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -76,28 +74,28 @@ export default function HomePage() {
   };
 
   const handleNext = async () => {
-  if (votedValue === null) return;
-  const caption = captions[index];
-  const { error } = await supabase.from("caption_votes").insert({
-    caption_id: caption.id,
-    profile_id: user.id,
-    vote_value: votedValue,
-    created_datetime_utc: new Date().toISOString(),
-  });
-  if (error) {
-    alert("Failed to submit vote: " + error.message);
-    return;
-  }
+    if (votedValue === null) return;
+    const caption = captions[index];
+    const { error } = await supabase.from("caption_votes").insert({
+      caption_id: caption.id,
+      profile_id: user.id,
+      vote_value: votedValue,
+      created_datetime_utc: new Date().toISOString(),
+    });
+    if (error) {
+      alert("Failed to submit vote: " + error.message);
+      return;
+    }
 
-  if (index + 1 >= captions.length) {
-    await loadCaptions();
-    setIndex(0);
-    setVotedValue(null);
-  } else {
-    setIndex((i) => i + 1);
-    setVotedValue(null);
-  }
-};
+    if (index + 1 >= captions.length) {
+      await loadCaptions();
+      setIndex(0);
+      setVotedValue(null);
+    } else {
+      setIndex((i) => i + 1);
+      setVotedValue(null);
+    }
+  };
 
   if (!user) return null;
 
@@ -251,7 +249,7 @@ export default function HomePage() {
           </div>
         ) : (
           <>
-            {done || captions.length === 0 ? (
+            {captions.length === 0 ? (
               <div
                 style={{
                   width: "100%",
@@ -266,7 +264,7 @@ export default function HomePage() {
                 }}
               >
                 <p style={{ fontSize: "18px", color: theme.textPrimary, fontWeight: "600", margin: 0 }}>
-                  {captions.length === 0 ? "No captions found." : "You've rated all captions! 🎉"}
+                  No captions found.
                 </p>
               </div>
             ) : (
@@ -308,7 +306,10 @@ export default function HomePage() {
 
                 {/* Divider */}
                 <div style={{ width: "100%", height: "1px", background: "#ffffff10" }} />
-                <img src={caption.imageUrl} alt={caption.content} />
+
+                {/* Image */}
+                <img src={caption.imageUrl} alt={caption.content} style={{ width: "100%", borderRadius: "12px" }} />
+
                 {/* Caption text */}
                 <p
                   style={{
@@ -326,8 +327,7 @@ export default function HomePage() {
                   {caption?.content}
                 </p>
 
-
-                {/* Vote buttons — smaller, centered */}
+                {/* Vote buttons */}
                 <div style={{ display: "flex", gap: "12px", width: "60%" }}>
                   <button
                     onClick={() => setVotedValue(1)}
@@ -392,7 +392,7 @@ export default function HomePage() {
                   onMouseEnter={e => { if (votedValue !== null) e.currentTarget.style.opacity = "0.85"; }}
                   onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
                 >
-                  {index + 1 >= captions.length ? "Finish" : "Next →"}
+                  Next →
                 </button>
               </div>
             )}
