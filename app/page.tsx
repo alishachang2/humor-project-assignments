@@ -336,12 +336,12 @@ export default function HomePage() {
                 </p>
 
                 {/* Vote buttons */}
-                <div style={{ display: "flex", gap: "12px", width: "60%" }}>
+                <div style={{ display: "flex", gap: "10px", width: "70%" }}>
                   <button
                     onClick={() => setVotedValue(1)}
                     style={{
                       flex: 1,
-                      padding: "14px 0",
+                      padding: "8px 0",
                       borderRadius: "14px",
                       border: votedValue === 1 ? `2px solid ${UPVOTE_COLOR}` : `2px solid ${UPVOTE_COLOR}88`,
                       background: votedValue === 1 ? `${UPVOTE_COLOR}33` : `${UPVOTE_COLOR}11`,
@@ -362,7 +362,7 @@ export default function HomePage() {
                     onClick={() => setVotedValue(-1)}
                     style={{
                       flex: 1,
-                      padding: "14px 0",
+                      padding: "8px 0",
                       borderRadius: "14px",
                       border: votedValue === -1 ? `2px solid ${DOWNVOTE_COLOR}` : `2px solid ${DOWNVOTE_COLOR}88`,
                       background: votedValue === -1 ? `${DOWNVOTE_COLOR}33` : `${DOWNVOTE_COLOR}11`,
@@ -386,7 +386,7 @@ export default function HomePage() {
                   disabled={votedValue === null}
                   style={{
                     width: "100%",
-                    padding: "16px",
+                    padding: "10px",
                     borderRadius: "14px",
                     border: "none",
                     background: votedValue !== null ? theme.icon : "#ffffff15",
