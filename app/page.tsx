@@ -8,7 +8,8 @@ import { theme } from "@/lib/theme";
 type Caption = {
   id: string;
   content: string;
-  images: {url: string}[];
+  image_id: string;
+  image_Url: string;
 };
 
 const UPVOTE_COLOR = "#22c55e";
@@ -34,11 +35,12 @@ export default function HomePage() {
     else setUser(data.user);
   });
 
+  
   const loadCaptions = async () => {
     const { count } = await supabase
       .from("captions")
       .select("*", { count: "exact", head: true });
-
+  
     const total = count ?? 0;
     const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
 
@@ -49,6 +51,20 @@ export default function HomePage() {
 
     if (data) setCaptions(data);
   };
+
+  const captionsWithImages = await Promise.all(
+  data.map(async (caption) => {
+    const { data: imageData } = await supabase
+      .from("images")
+      .select("url")
+      .eq("uuid", caption.image_id)
+      .single();
+
+    return { ...caption, imageUrl: imageData?.url };
+  })
+);
+
+if (captionsWithImages) setCaptions(captionsWithImages);
 
   loadCaptions();
 
@@ -292,7 +308,7 @@ export default function HomePage() {
 
                 {/* Divider */}
                 <div style={{ width: "100%", height: "1px", background: "#ffffff10" }} />
-                <img src={caption.images[0].url} alt={caption.content} />
+                <img src={caption.imageUrl} alt={caption.content} />
                 {/* Caption text */}
                 <p
                   style={{
