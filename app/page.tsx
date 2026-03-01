@@ -159,6 +159,7 @@ export default function HomePage() {
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <div
             style={{
+              maxHeight: "calc(100vh - 120px)",
               background: theme.card,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
