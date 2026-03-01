@@ -272,7 +272,8 @@ export default function HomePage() {
               <div
                 style={{
                   width: "100%",
-                  maxWidth: "400px",
+                  maxWidth: "560px",
+                  maxHeight: "400px",
                   background: theme.card,
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
