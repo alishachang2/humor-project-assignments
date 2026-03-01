@@ -215,7 +215,7 @@ export default function HomePage() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          padding: "120px 24px 40px",
+          padding: "72px 24px 40px",
           height: "100vh",
           boxSizing: "border-box",
         }}
@@ -336,13 +336,13 @@ export default function HomePage() {
                 </p>
 
                 {/* Vote buttons */}
-                <div style={{ display: "flex", gap: "10px", width: "70%" }}>
+                <div style={{ display: "flex", gap: "10px"}}>
                   <button
                     onClick={() => setVotedValue(1)}
                     style={{
-                      flex: 1,
-                      padding: "8px 0",
-                      borderRadius: "14px",
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "50%",
                       border: votedValue === 1 ? `2px solid ${UPVOTE_COLOR}` : `2px solid ${UPVOTE_COLOR}88`,
                       background: votedValue === 1 ? `${UPVOTE_COLOR}33` : `${UPVOTE_COLOR}11`,
                       cursor: "pointer",
