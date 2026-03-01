@@ -55,7 +55,7 @@ export default function HomePage() {
         const { data: imageData } = await supabase
           .from("images")
           .select("url")
-          .eq("uuid", caption.image_id)
+          .eq("id", caption.image_id)
           .single();
 
         return { ...caption, imageUrl: imageData?.url };
