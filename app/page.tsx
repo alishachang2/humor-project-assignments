@@ -361,14 +361,14 @@ export default function HomePage() {
                   <button
                     onClick={() => setVotedValue(-1)}
                     style={{
-                     width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      border: votedValue === 1 ? `2px solid ${UPVOTE_COLOR}` : `2px solid ${UPVOTE_COLOR}88`,
-                      background: votedValue === 1 ? `${UPVOTE_COLOR}33` : `${UPVOTE_COLOR}11`,
+                      flex: 1,
+                      padding: "8px 0",
+                      borderRadius: "14px",
+                      border: votedValue === -1 ? `2px solid ${DOWNVOTE_COLOR}` : `2px solid ${DOWNVOTE_COLOR}88`,
+                      background: votedValue === -1 ? `${DOWNVOTE_COLOR}33` : `${DOWNVOTE_COLOR}11`,
                       cursor: "pointer",
                       transition: "all 0.15s ease",
-                      transform: votedValue === 1 ? "scale(1.06)" : "scale(1)",
+                      transform: votedValue === -1 ? "scale(1.06)" : "scale(1)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
