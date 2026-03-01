@@ -9,7 +9,7 @@ type Caption = {
   id: string;
   content: string;
   image_id: string;
-  image_Url: string;
+  imageUrl: string;
 };
 
 const UPVOTE_COLOR = "#22c55e";
@@ -37,34 +37,34 @@ export default function HomePage() {
 
   
   const loadCaptions = async () => {
-    const { count } = await supabase
-      .from("captions")
-      .select("*", { count: "exact", head: true });
-  
-    const total = count ?? 0;
-    const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
+  const { count } = await supabase
+    .from("captions")
+    .select("*", { count: "exact", head: true });
 
-    const { data } = await supabase
-      .from("captions")
-      .select("id, content, images!image_id(url)")
-      .range(randomOffset, randomOffset + 9);
+  const total = count ?? 0;
+  const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
 
-    if (data) setCaptions(data);
-  };
+  const { data } = await supabase
+    .from("captions")
+    .select("id, content, image_id")
+    .range(randomOffset, randomOffset + 9);
 
-  const captionsWithImages = await Promise.all(
-  data.map(async (caption) => {
-    const { data: imageData } = await supabase
-      .from("images")
-      .select("url")
-      .eq("uuid", caption.image_id)
-      .single();
+  if (data) {
+    const captionsWithImages = await Promise.all(
+      data.map(async (caption) => {
+        const { data: imageData } = await supabase
+          .from("images")
+          .select("url")
+          .eq("uuid", caption.image_id)
+          .single();
 
-    return { ...caption, imageUrl: imageData?.url };
-  })
-);
+        return { ...caption, imageUrl: imageData?.url };
+      })
+    );
 
-if (captionsWithImages) setCaptions(captionsWithImages);
+    setCaptions(captionsWithImages);
+  }
+};
 
   loadCaptions();
 
