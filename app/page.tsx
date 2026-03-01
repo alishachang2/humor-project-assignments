@@ -322,12 +322,11 @@ export default function HomePage() {
                 {/* Caption text */}
                 <p
                   style={{
-                    fontSize: "22px",
+                    fontSize: "16px",
                     fontWeight: "600",
                     color: theme.textPrimary,
-                    lineHeight: "1.4",
+                    lineHeight: "1.3",
                     margin: "0",
-                    minHeight: "80px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
