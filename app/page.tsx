@@ -180,7 +180,8 @@ export default function HomePage() {
                 style={{ width: "22px", height: "22px", borderRadius: "50%" }}
               />
             )}
-            {user.user_metadata?.given_name || user.email}
+            {user.user_metadata?.given_name || user.user_metadata?.full_name || user.email}
+
           </div>
 
           <button
@@ -244,7 +245,7 @@ export default function HomePage() {
               Hey, {user.user_metadata?.given_name || "there"} 👋
             </h1>
             <p style={{ fontSize: "16px", color: theme.textSecondary, margin: "0" }}>
-              You're signed in as <strong style={{ color: theme.textPrimary }}>{user.email}</strong>
+              You're signed in as <strong style={{ color: theme.textPrimary }}>{user.user_metadata?.email || user.email}</strong>
             </p>
           </div>
         ) : (
