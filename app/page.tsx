@@ -215,7 +215,8 @@ export default function HomePage() {
           alignItems: "center",
           justifyContent: "center",
           padding: "120px 24px 40px",
-          gap: "16px",
+          height: "100vh",
+          boxSizing: "border-box",
         }}
       >
         {showGreeting ? (
