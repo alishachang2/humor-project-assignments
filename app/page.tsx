@@ -48,7 +48,6 @@ export default function HomePage() {
     .from("captions")
     .select("id, content, image_id")
     .range(randomOffset, randomOffset + 9);
-
   if (data) {
     const captionsWithImages = await Promise.all(
       data.map(async (caption) => {
@@ -57,11 +56,10 @@ export default function HomePage() {
           .select("url")
           .eq("id", caption.image_id)
           .single();
-
         return { ...caption, imageUrl: imageData?.url };
       })
     );
-
+    console.log("captionsWithImages:", captionsWithImages);
     setCaptions(captionsWithImages);
   }
 };
