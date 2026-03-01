@@ -29,46 +29,46 @@ export default function HomePage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  useEffect(() => {
-  supabase.auth.getUser().then(({ data }) => {
-    if (!data.user) router.push("/login");
-    else setUser(data.user);
-  });
-
-  
   const loadCaptions = async () => {
-  const { count } = await supabase
-    .from("captions")
-    .select("*", { count: "exact", head: true });
+      const { count } = await supabase
+        .from("captions")
+        .select("*", { count: "exact", head: true });
 
-  const total = count ?? 0;
-  const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
+      const total = count ?? 0;
+      const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
 
-  const { data } = await supabase
-    .from("captions")
-    .select("id, content, image_id")
-    .range(randomOffset, randomOffset + 9);
-  if (data) {
-    const captionsWithImages = await Promise.all(
-      data.map(async (caption) => {
-        const { data: imageData } = await supabase
-          .from("images")
-          .select("url")
-          .eq("id", caption.image_id)
-          .single();
-        return { ...caption, imageUrl: imageData?.url };
-      })
-    );
-    console.log("captionsWithImages:", captionsWithImages);
-    setCaptions(captionsWithImages);
-  }
-};
+      const { data } = await supabase
+        .from("captions")
+        .select("id, content, image_id")
+        .range(randomOffset, randomOffset + 9);
+      if (data) {
+        const captionsWithImages = await Promise.all(
+          data.map(async (caption) => {
+            const { data: imageData } = await supabase
+              .from("images")
+              .select("url")
+              .eq("id", caption.image_id)
+              .single();
+            return { ...caption, imageUrl: imageData?.url };
+          })
+        );
+        console.log("captionsWithImages:", captionsWithImages);
+        setCaptions(captionsWithImages);
+      }
+    };
+    
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) router.push("/login");
+      else setUser(data.user);
+    });
 
-  loadCaptions();
 
-  const timer = setTimeout(() => setShowGreeting(false), 5000);
-  return () => clearTimeout(timer);
-}, []);
+    loadCaptions();
+
+    const timer = setTimeout(() => setShowGreeting(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -76,26 +76,28 @@ export default function HomePage() {
   };
 
   const handleNext = async () => {
-    if (votedValue === null) return;
-    const caption = captions[index];
-    const { error } = await supabase.from("caption_votes").insert({
-      caption_id: caption.id,
-      profile_id: user.id,
-      vote_value: votedValue,
-      created_datetime_utc: new Date().toISOString(),
-    });
-    if (error) {
-      alert("Failed to submit vote: " + error.message);
-      return;
-    }
+  if (votedValue === null) return;
+  const caption = captions[index];
+  const { error } = await supabase.from("caption_votes").insert({
+    caption_id: caption.id,
+    profile_id: user.id,
+    vote_value: votedValue,
+    created_datetime_utc: new Date().toISOString(),
+  });
+  if (error) {
+    alert("Failed to submit vote: " + error.message);
+    return;
+  }
 
-    if (index + 1 >= captions.length) {
-      setDone(true);
-    } else {
-      setIndex((i) => i + 1);
-      setVotedValue(null);
-    }
-  };
+  if (index + 1 >= captions.length) {
+    await loadCaptions();
+    setIndex(0);
+    setVotedValue(null);
+  } else {
+    setIndex((i) => i + 1);
+    setVotedValue(null);
+  }
+};
 
   if (!user) return null;
 
@@ -324,7 +326,7 @@ export default function HomePage() {
                   {caption?.content}
                 </p>
 
-                
+
                 {/* Vote buttons — smaller, centered */}
                 <div style={{ display: "flex", gap: "12px", width: "60%" }}>
                   <button
