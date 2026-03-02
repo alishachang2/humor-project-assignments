@@ -143,20 +143,17 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    const init = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error(error);
-        return;
-      }
-      if (data?.user) {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) router.push("/login");
+      else {
         setUser(data.user);
-        await loadCaptions(data.user.id);
+        loadCaptions(data.user.id);
       }
-    };
-    init();
+    });
+    const timer = setTimeout(() => setShowGreeting(false), 2000);
+    return () => clearTimeout(timer);
   }, []);
-  
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
@@ -774,7 +771,7 @@ export default function HomePage() {
                 {uploadState === "done" && (
                   <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "14px" }}>
                     {(uploadedImageUrl || previewUrl) && (
-                      <div style={{ borderRadius: "12px", overflow: "hidden" }}>
+                      <div style={{ borderRadius: "12px", overflow: "hidden", border: `1px solid ${t.cardBorder}` }}>
                         <img src={uploadedImageUrl || previewUrl!} alt="Uploaded" style={{
                           width: "100%", maxHeight: "180px", objectFit: "contain", display: "block",
                         }} />
