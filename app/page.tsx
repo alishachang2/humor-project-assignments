@@ -114,18 +114,25 @@ export default function HomePage() {
   };
 
   const loadCaptions = async () => {
-    const { count } = await supabase.from("captions").select("*", { count: "exact", head: true });
-    const total = count ?? 0;
-    const randomOffset = Math.floor(Math.random() * Math.max(0, total - 10));
-    const { data } = await supabase.from("captions").select("id, content, image_id").range(randomOffset, randomOffset + 9);
+    const { data } = await supabase
+      .from("captions")
+      .select("id, content, image_id, images(url)")
+      .not("content", "is", null)
+      .neq("content", "")
+      .limit(50);
+
     if (data) {
-      const captionsWithImages = await Promise.all(
-        data.map(async (caption) => {
-          const { data: imageData } = await supabase.from("images").select("url").eq("id", caption.image_id).single();
-          return { ...caption, imageUrl: imageData?.url ?? null };
-        })
-      );
-      setCaptions(captionsWithImages.filter((c) => c.imageUrl));
+      const captionsWithImages = (data as any[])
+        .map((caption) => ({
+          id: caption.id,
+          content: caption.content,
+          image_id: caption.image_id,
+          imageUrl: caption.images?.url ?? null,
+        }))
+        .filter((c) => c.imageUrl);
+
+      const shuffled = captionsWithImages.sort(() => Math.random() - 0.5).slice(0, 10);
+      setCaptions(shuffled);
     }
   };
 
