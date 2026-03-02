@@ -113,15 +113,21 @@ export default function HomePage() {
     toastTimer.current = setTimeout(() => setToast({ msg: "", visible: false }), 2400);
   };
 
-  const loadCaptions = async () => {
-    const { data } = await supabase
-      .from("captions")
-      .select("id, content, image_id, images(url)")
-      .not("content", "is", null)
-      .neq("content", "")
-      .limit(50);
+  const loadCaptions = async (userId?: string) => {
+    const [{ data }, { data: votedData }] = await Promise.all([
+      supabase
+        .from("captions")
+        .select("id, content, image_id, images(url)")
+        .not("content", "is", null)
+        .neq("content", "")
+        .limit(200),
+      userId
+        ? supabase.from("caption_votes").select("caption_id").eq("profile_id", userId)
+        : Promise.resolve({ data: [] }),
+    ]);
 
     if (data) {
+      const votedSet = new Set((votedData ?? []).map((v: any) => v.caption_id));
       const captionsWithImages = (data as any[])
         .map((caption) => ({
           id: caption.id,
@@ -129,7 +135,7 @@ export default function HomePage() {
           image_id: caption.image_id,
           imageUrl: caption.images?.url ?? null,
         }))
-        .filter((c) => c.imageUrl);
+        .filter((c) => c.imageUrl && !votedSet.has(c.id));
 
       const shuffled = captionsWithImages.sort(() => Math.random() - 0.5).slice(0, 10);
       setCaptions(shuffled);
@@ -139,9 +145,11 @@ export default function HomePage() {
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) router.push("/login");
-      else setUser(data.user);
+      else {
+        setUser(data.user);
+        loadCaptions(data.user.id);
+      }
     });
-    loadCaptions();
     const timer = setTimeout(() => setShowGreeting(false), 2000);
     return () => clearTimeout(timer);
   }, []);
@@ -170,9 +178,18 @@ export default function HomePage() {
       vote_value: votedValue,
       created_datetime_utc: new Date().toISOString(),
     });
-    if (error) { alert("Failed to submit vote: " + error.message); return; }
+    if (error) {
+      if (error.code === "23505") {
+        if (index + 1 >= captions.length) { await loadCaptions(user.id); setIndex(0); }
+        else setIndex((i) => i + 1);
+        setVotedValue(null);
+        return;
+      }
+      alert("Failed to submit vote: " + error.message);
+      return;
+    }
     showToast(votedValue === 1 ? "Voted funny!" : "Voted not funny");
-    if (index + 1 >= captions.length) { await loadCaptions(); setIndex(0); }
+    if (index + 1 >= captions.length) { await loadCaptions(user.id); setIndex(0); }
     else setIndex((i) => i + 1);
     setVotedValue(null);
   };
@@ -696,7 +713,7 @@ export default function HomePage() {
                     {previewUrl && (
                       <div style={{ position: "relative", borderRadius: "12px", overflow: "hidden", border: `1px solid ${t.cardBorder}` }}>
                         <img src={previewUrl} alt="Preview" style={{
-                          width: "100%", maxHeight: "160px", objectFit: "cover",
+                          width: "100%", maxHeight: "160px", objectFit: "contain",
                           display: "block", filter: "brightness(0.6) saturate(0.7)",
                         }} />
                         <div style={{
@@ -756,7 +773,7 @@ export default function HomePage() {
                     {(uploadedImageUrl || previewUrl) && (
                       <div style={{ borderRadius: "12px", overflow: "hidden", border: `1px solid ${t.cardBorder}` }}>
                         <img src={uploadedImageUrl || previewUrl!} alt="Uploaded" style={{
-                          width: "100%", maxHeight: "180px", objectFit: "cover", display: "block",
+                          width: "100%", maxHeight: "180px", objectFit: "contain", display: "block",
                         }} />
                       </div>
                     )}
