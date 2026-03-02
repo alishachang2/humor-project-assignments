@@ -18,6 +18,7 @@ export const theme = {
   textPrimary: "#2e1a0e",
   textSecondary: "rgba(46, 26, 14, 0.6)",
   textMuted: "rgba(46, 26, 14, 0.4)",
+  
 
   // Borders
   border: "1px solid rgba(180, 90, 40, 0.2)",

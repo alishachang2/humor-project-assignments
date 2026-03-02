@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
+import { theme } from "@/lib/theme";
 
 type Caption = {
   id: string;
@@ -22,36 +23,43 @@ const STEPS = [
   { key: "generating", label: "Generating captions" },
 ];
 
-const c = {
-  bg: "#f7f4ee",
-  bgDot: "#e8e2d6",
-  yellow: "#f5d76e",
-  yellowLight: "#fef9e4",
-  green: "#c8dea0",
-  greenDark: "#8ab86e",
-  pink: "#f4b8c8",
-  pinkLight: "#fde8ef",
-  blue: "#a8d4e0",
-  blueLight: "#e0f4f8",
-  text: "#3d3226",
-  textSoft: "#8a7a6a",
-  white: "#fffef9",
-  border: "#e0d8cc",
+// Derived from theme — warm orange/coral palette
+const t = {
+  cardBg: "rgba(255, 250, 240, 0.82)",
+  cardBorder: "rgba(180, 90, 40, 0.18)",
+  cardShadow: "rgba(180, 90, 40, 0.15)",
+  accent: "#c8522a",         // burnt orange — primary action
+  accentLight: "rgba(200, 82, 42, 0.12)",
+  accentMid: "rgba(200, 82, 42, 0.22)",
+  accentHover: "#b04020",
+  yes: "#7daa5a",            // warm olive green for "funny"
+  yesLight: "rgba(125, 170, 90, 0.15)",
+  no: "#c8522a",             // burnt orange for "not funny"
+  noLight: "rgba(200, 82, 42, 0.1)",
+  text: "#2e1a0e",
+  textSoft: "rgba(46, 26, 14, 0.55)",
+  tabActiveBg: "rgba(200, 82, 42, 0.14)",
+  divider: "rgba(180, 90, 40, 0.14)",
+  inputBg: "rgba(255, 248, 235, 0.7)",
+  stripAlt: "rgba(245, 200, 66, 0.18)",  // pale yellow tint for alt caption rows
 };
 
-function Card({ children }: { children: React.ReactNode }) {
+function Card({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
     <div style={{
       width: "100%",
-      background: c.white,
-      borderRadius: "24px",
-      border: `2.5px solid ${c.border}`,
-      padding: "28px 32px",
+      background: t.cardBg,
+      backdropFilter: "blur(18px)",
+      WebkitBackdropFilter: "blur(18px)",
+      borderRadius: "28px",
+      border: `2px solid ${t.cardBorder}`,
+      padding: "30px 34px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      gap: "18px",
-      boxShadow: `5px 5px 0 ${c.border}`,
+      gap: "20px",
+      boxShadow: `0 8px 32px ${t.cardShadow}, 0 2px 8px rgba(0,0,0,0.06)`,
+      ...style,
     }}>
       {children}
     </div>
@@ -142,7 +150,7 @@ export default function HomePage() {
       created_datetime_utc: new Date().toISOString(),
     });
     if (error) { alert("Failed to submit vote: " + error.message); return; }
-    showToast(votedValue === 1 ? "🌸 Voted funny!" : "🐦 Voted not funny");
+    showToast(votedValue === 1 ? "🌸 Voted funny!" : "🍂 Voted not funny");
     if (index + 1 >= captions.length) { await loadCaptions(); setIndex(0); }
     else setIndex((i) => i + 1);
     setVotedValue(null);
@@ -176,8 +184,7 @@ export default function HomePage() {
       });
       if (!presignRes.ok) throw new Error("Couldn't get upload URL");
       const { presignedUrl, cdnUrl } = await presignRes.json();
-      const uploadRes = await fetch(presignedUrl, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
-      if (!uploadRes.ok) throw new Error("Couldn't upload image");
+      await fetch(presignedUrl, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
       setUploadedImageUrl(cdnUrl);
       setUploadState("registering");
       const registerRes = await fetch(`${API_BASE}/pipeline/upload-image-from-url`, {
@@ -221,85 +228,71 @@ export default function HomePage() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: c.bg,
+      background: theme.background,
       fontFamily: "'Nunito', 'Trebuchet MS', sans-serif",
       display: "flex",
       flexDirection: "column",
       position: "relative",
-      overflow: "hidden",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Caveat:wght@500;600;700&display=swap');
         * { box-sizing: border-box; }
 
         @keyframes floatUp {
-          from { opacity: 0; transform: translateY(16px); }
+          from { opacity: 0; transform: translateY(18px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes greetFade {
           0%   { opacity: 0; transform: translateY(14px) scale(0.97); }
           18%  { opacity: 1; transform: translateY(0) scale(1); }
-          78%  { opacity: 1; transform: translateY(0) scale(1); }
-          100% { opacity: 0; transform: translateY(-10px) scale(0.97); }
+          78%  { opacity: 1; }
+          100% { opacity: 0; transform: translateY(-10px); }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes toastPop {
           0%   { opacity: 0; transform: translateX(-50%) scale(0.85) translateY(10px); }
-          65%  { transform: translateX(-50%) scale(1.05) translateY(-2px); }
+          65%  { transform: translateX(-50%) scale(1.04) translateY(-2px); }
           100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
         }
-        @keyframes petal {
-          0%, 100% { transform: rotate(-5deg) scale(1); }
-          50%       { transform: rotate(5deg) scale(1.05); }
+        @keyframes petalRock {
+          0%, 100% { transform: rotate(-4deg); }
+          50%       { transform: rotate(4deg); }
         }
         @keyframes blink {
           0%, 100% { opacity: 1; }
-          50%       { opacity: 0.2; }
+          50%       { opacity: 0.15; }
         }
         @keyframes popIn {
-          from { opacity: 0; transform: translateY(-8px) scale(0.94); }
+          from { opacity: 0; transform: translateY(-8px) scale(0.93); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        .tab-btn { transition: all 0.18s ease; }
-        .tab-btn:hover { transform: translateY(-2px); }
-
-        .vote-btn { transition: all 0.15s ease; }
-        .vote-btn:hover { transform: scale(1.07) rotate(-2deg); }
+        .vote-btn { transition: all 0.15s ease; cursor: pointer; }
+        .vote-btn:hover { transform: scale(1.06) rotate(-2deg); }
         .vote-btn:active { transform: scale(0.93); }
 
         .next-btn { transition: all 0.18s ease; }
-        .next-btn:hover:not(:disabled) {
-          transform: translateY(-2px);
-          box-shadow: 4px 6px 0 #3d3226 !important;
-        }
+        .next-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.06); }
 
-        .upload-again:hover { transform: translateY(-2px); box-shadow: 4px 6px 0 #3d3226 !important; }
+        .tab-btn { transition: all 0.16s ease; cursor: pointer; }
+        .tab-btn:hover { filter: brightness(0.96); }
+
+        .pill-btn { transition: all 0.16s ease; cursor: pointer; }
+        .pill-btn:hover { filter: brightness(0.94); }
       `}</style>
-
-      {/* Dot background */}
-      <div style={{
-        position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
-        backgroundImage: `radial-gradient(circle, ${c.bgDot} 1.5px, transparent 1.5px)`,
-        backgroundSize: "28px 28px",
-      }} />
-
-      {/* Decorative blobs */}
-      <div style={{ position: "fixed", width: 360, height: 360, background: c.yellow, borderRadius: "50%", filter: "blur(70px)", opacity: 0.3, top: -100, right: -80, zIndex: 0, pointerEvents: "none" }} />
-      <div style={{ position: "fixed", width: 280, height: 280, background: c.green, borderRadius: "50%", filter: "blur(60px)", opacity: 0.3, bottom: -60, left: -60, zIndex: 0, pointerEvents: "none" }} />
-      <div style={{ position: "fixed", width: 220, height: 220, background: c.pink, borderRadius: "50%", filter: "blur(55px)", opacity: 0.3, bottom: 120, right: 30, zIndex: 0, pointerEvents: "none" }} />
 
       {/* Toast */}
       {toast.visible && (
         <div style={{
           position: "fixed", bottom: "36px", left: "50%",
-          background: c.white,
-          border: `2.5px solid ${c.greenDark}`,
+          background: "rgba(255, 250, 240, 0.96)",
+          backdropFilter: "blur(12px)",
+          border: `1.5px solid ${t.cardBorder}`,
           borderRadius: "999px",
           padding: "10px 26px",
-          fontSize: "15px", fontWeight: "800", color: c.text,
+          fontSize: "14px", fontWeight: "800", color: t.text,
           zIndex: 300, whiteSpace: "nowrap",
-          boxShadow: `3px 3px 0 ${c.greenDark}`,
+          boxShadow: `0 6px 24px ${t.cardShadow}`,
           animation: "toastPop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards",
           fontFamily: "'Nunito', sans-serif",
         }}>
@@ -307,106 +300,108 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Navbar */}
+      {/* ── Navbar ── */}
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 28px",
-        background: `${c.white}e8`,
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        borderBottom: `2px solid ${c.border}`,
+        background: "rgba(255, 248, 235, 0.55)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        borderBottom: theme.navBorder,
       }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <div style={{
-            width: "38px", height: "38px",
-            background: c.yellow,
+            width: "36px", height: "36px",
+            background: t.accentLight,
             borderRadius: "50%",
-            border: `2.5px solid ${c.text}`,
+            border: `1.5px solid ${t.cardBorder}`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: "19px",
-            boxShadow: `2px 2px 0 ${c.text}`,
-            animation: "petal 3s ease infinite",
+            fontSize: "18px",
+            animation: "petalRock 3s ease infinite",
           }}>
             🌸
           </div>
           <span style={{
             fontFamily: "'Caveat', cursive",
-            fontSize: "24px", fontWeight: "700", color: c.text,
+            fontSize: "23px", fontWeight: "700", color: t.text,
           }}>
             Humor Project
           </span>
         </div>
 
-        {/* Profile pill */}
+        {/* Profile pill + popup */}
         <div ref={profileRef} style={{ position: "relative" }}>
           <button
+            className="pill-btn"
             onClick={() => setProfileOpen(o => !o)}
             style={{
               display: "flex", alignItems: "center", gap: "8px",
-              background: profileOpen ? c.yellow : c.yellowLight,
-              border: `2.5px solid ${profileOpen ? c.text : c.border}`,
+              background: profileOpen ? t.accentLight : "rgba(255, 248, 235, 0.65)",
+              backdropFilter: "blur(8px)",
+              border: `1.5px solid ${profileOpen ? t.accent : t.cardBorder}`,
               borderRadius: "999px",
-              padding: "7px 14px 7px 8px",
-              cursor: "pointer",
+              padding: "6px 14px 6px 7px",
               fontFamily: "'Nunito', sans-serif",
-              fontSize: "14px", fontWeight: "800", color: c.text,
-              transition: "all 0.16s ease",
-              boxShadow: profileOpen ? `2px 2px 0 ${c.text}` : "none",
+              fontSize: "14px", fontWeight: "700", color: t.text,
             }}
           >
             {user.user_metadata?.avatar_url ? (
               <img src={user.user_metadata.avatar_url} alt="avatar"
-                style={{ width: "26px", height: "26px", borderRadius: "50%", border: `2px solid ${c.border}` }} />
+                style={{ width: "26px", height: "26px", borderRadius: "50%", border: `1.5px solid ${t.cardBorder}` }} />
             ) : (
               <div style={{
                 width: "26px", height: "26px", borderRadius: "50%",
-                background: c.green, border: `2px solid ${c.text}`,
+                background: t.accentLight, border: `1.5px solid ${t.cardBorder}`,
                 display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px",
               }}>🌿</div>
             )}
             {user.user_metadata?.given_name || user.user_metadata?.full_name?.split(" ")[0] || "you"}
-            <span style={{ fontSize: "9px", color: c.textSoft }}>{profileOpen ? "▲" : "▼"}</span>
+            <span style={{ fontSize: "9px", color: t.textSoft, marginLeft: "2px" }}>
+              {profileOpen ? "▲" : "▼"}
+            </span>
           </button>
 
-          {/* Popup */}
+          {/* Dropdown popup */}
           {profileOpen && (
             <div style={{
               position: "absolute", top: "calc(100% + 10px)", right: 0,
-              background: c.white,
-              border: `2.5px solid ${c.border}`,
+              background: "rgba(255, 250, 240, 0.97)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              border: `1.5px solid ${t.cardBorder}`,
               borderRadius: "20px",
               padding: "8px",
-              minWidth: "190px",
-              boxShadow: `4px 4px 0 ${c.border}`,
+              minWidth: "196px",
+              boxShadow: `0 12px 36px ${t.cardShadow}`,
               animation: "popIn 0.2s cubic-bezier(0.34,1.56,0.64,1) forwards",
               zIndex: 200,
             }}>
-              {/* User info header */}
+              {/* User info */}
               <div style={{
                 padding: "10px 14px 12px",
-                borderBottom: `2px dashed ${c.border}`,
+                borderBottom: `1px dashed ${t.divider}`,
                 marginBottom: "6px",
               }}>
-                <div style={{ fontSize: "13px", fontWeight: "900", color: c.text }}>
+                <div style={{ fontSize: "13px", fontWeight: "800", color: t.text }}>
                   {user.user_metadata?.full_name || user.user_metadata?.given_name || "Friend"}
                 </div>
-                <div style={{ fontSize: "11px", color: c.textSoft, marginTop: "3px", fontWeight: "600" }}>
+                <div style={{ fontSize: "11px", color: t.textSoft, marginTop: "3px", fontWeight: "600" }}>
                   {user.email}
                 </div>
               </div>
 
-              {/* Sign out btn */}
+              {/* Sign out */}
               <button
                 onClick={handleSignOut}
                 style={{
                   width: "100%",
                   padding: "10px 14px",
                   borderRadius: "13px",
-                  border: `2px solid ${c.pink}`,
-                  background: c.pinkLight,
-                  color: c.text,
+                  border: `1.5px solid rgba(180,90,40,0.25)`,
+                  background: t.accentLight,
+                  color: t.text,
                   fontSize: "14px", fontWeight: "800",
                   cursor: "pointer",
                   fontFamily: "'Nunito', sans-serif",
@@ -414,8 +409,8 @@ export default function HomePage() {
                   display: "flex", alignItems: "center", gap: "8px",
                   transition: "background 0.15s ease",
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = c.pink; }}
-                onMouseLeave={e => { e.currentTarget.style.background = c.pinkLight; }}
+                onMouseEnter={e => { e.currentTarget.style.background = t.accentMid; }}
+                onMouseLeave={e => { e.currentTarget.style.background = t.accentLight; }}
               >
                 <span>👋</span> Sign out
               </button>
@@ -424,11 +419,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Main content */}
+      {/* ── Main ── */}
       <main style={{
         flex: 1, display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
-        padding: "96px 24px 48px",
+        padding: "92px 24px 48px",
         minHeight: "100vh", boxSizing: "border-box", gap: "16px",
         position: "relative", zIndex: 1,
       }}>
@@ -436,21 +431,24 @@ export default function HomePage() {
         {showGreeting ? (
           <div style={{
             width: "100%", maxWidth: "460px",
-            background: c.white, borderRadius: "28px",
-            border: `2.5px solid ${c.border}`,
+            background: t.cardBg,
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderRadius: "28px",
+            border: `2px solid ${t.cardBorder}`,
             padding: "52px 44px", textAlign: "center",
-            boxShadow: `6px 6px 0 ${c.border}`,
+            boxShadow: `0 10px 40px ${t.cardShadow}`,
             animation: "greetFade 2.2s ease forwards",
           }}>
-            <div style={{ fontSize: "54px", marginBottom: "16px", display: "inline-block", animation: "petal 2s ease infinite" }}>🌸</div>
+            <div style={{ fontSize: "52px", marginBottom: "16px", display: "inline-block", animation: "petalRock 2s ease infinite" }}>🌸</div>
             <h1 style={{
               fontFamily: "'Caveat', cursive",
-              fontSize: "42px", fontWeight: "700", color: c.text, margin: "0 0 10px 0",
+              fontSize: "42px", fontWeight: "700", color: t.text, margin: "0 0 10px 0",
             }}>
               Hi, {user.user_metadata?.given_name || "there"}!
             </h1>
-            <p style={{ fontSize: "15px", color: c.textSoft, margin: "0", fontWeight: "600" }}>
-              Signed in as <span style={{ color: c.text }}>{user.email}</span>
+            <p style={{ fontSize: "15px", color: t.textSoft, margin: "0", fontWeight: "600" }}>
+              Signed in as <span style={{ color: t.text, fontWeight: "800" }}>{user.email}</span>
             </p>
           </div>
 
@@ -461,36 +459,39 @@ export default function HomePage() {
             animation: "floatUp 0.4s ease forwards",
           }}>
 
-            {/* Tab Toggle */}
+            {/* ── Tab Toggle ── */}
             <div style={{
-              display: "flex", gap: "8px",
-              background: c.white, borderRadius: "20px",
-              border: `2.5px solid ${c.border}`,
-              padding: "6px",
-              boxShadow: `4px 4px 0 ${c.border}`,
+              display: "flex", gap: "6px",
+              background: "rgba(255,248,235,0.5)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              borderRadius: "20px",
+              border: `1.5px solid ${t.cardBorder}`,
+              padding: "5px",
+              boxShadow: `0 4px 16px ${t.cardShadow}`,
             }}>
               {[
                 { key: "rate", label: "Rate Captions", emoji: "⭐" },
                 { key: "upload", label: "Upload Image", emoji: "🌿" },
-              ].map((t) => {
-                const active = tab === t.key;
+              ].map((tb) => {
+                const active = tab === tb.key;
                 return (
                   <button
-                    key={t.key}
+                    key={tb.key}
                     className="tab-btn"
-                    onClick={() => { setTab(t.key as Tab); if (t.key === "rate") resetUpload(); }}
+                    onClick={() => { setTab(tb.key as Tab); if (tb.key === "rate") resetUpload(); }}
                     style={{
                       flex: 1, padding: "10px 16px",
-                      borderRadius: "14px",
-                      border: active ? `2px solid ${c.text}` : "2px solid transparent",
-                      background: active ? c.yellow : "transparent",
-                      color: c.text, fontSize: "14px", fontWeight: "800",
-                      cursor: "pointer", fontFamily: "'Nunito', sans-serif",
-                      boxShadow: active ? `2px 2px 0 ${c.text}` : "none",
+                      borderRadius: "15px",
+                      border: active ? `1.5px solid ${t.cardBorder}` : "1.5px solid transparent",
+                      background: active ? t.tabActiveBg : "transparent",
+                      color: active ? t.text : t.textSoft,
+                      fontSize: "14px", fontWeight: active ? "800" : "600",
+                      fontFamily: "'Nunito', sans-serif",
                       display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
                     }}
                   >
-                    <span>{t.emoji}</span> {t.label}
+                    <span>{tb.emoji}</span> {tb.label}
                   </button>
                 );
               })}
@@ -500,58 +501,57 @@ export default function HomePage() {
             {tab === "rate" && (
               captions.length === 0 ? (
                 <Card>
-                  <p style={{ fontSize: "16px", color: c.textSoft, fontWeight: "700", margin: 0 }}>
-                    No captions found yet 🐦
+                  <p style={{ fontSize: "16px", color: t.textSoft, fontWeight: "700", margin: 0 }}>
+                    No captions found yet 🍂
                   </p>
                 </Card>
               ) : (
                 <Card>
                   {/* Progress */}
                   <div style={{ width: "100%" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: c.textSoft, fontWeight: "700", marginBottom: "7px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: t.textSoft, fontWeight: "700", marginBottom: "8px" }}>
                       <span>rate this one ✦</span>
                       <span>{index + 1} of {captions.length}</span>
                     </div>
-                    <div style={{ width: "100%", height: "9px", background: c.border, borderRadius: "999px", overflow: "hidden", border: `1.5px solid ${c.text}18` }}>
+                    <div style={{ width: "100%", height: "6px", background: t.divider, borderRadius: "999px", overflow: "hidden" }}>
                       <div style={{
                         height: "100%",
                         width: `${((index + (votedValue !== null ? 1 : 0)) / captions.length) * 100}%`,
-                        background: `linear-gradient(90deg, ${c.greenDark}, ${c.green})`,
+                        background: `linear-gradient(90deg, ${t.accent}, #f0834a)`,
                         borderRadius: "999px",
                         transition: "width 0.4s ease",
                       }} />
                     </div>
                   </div>
 
-                  <div style={{ width: "100%", height: 0, borderTop: `1.5px dashed ${c.border}` }} />
+                  <div style={{ width: "100%", height: 0, borderTop: `1px dashed ${t.divider}` }} />
 
                   {/* Image */}
                   <div style={{
                     width: "100%", borderRadius: "16px", overflow: "hidden",
-                    border: `2px solid ${c.border}`,
-                    boxShadow: `3px 3px 0 ${c.border}`,
+                    border: `1.5px solid ${t.cardBorder}`,
                   }}>
                     <img src={caption.imageUrl} alt={caption.content} style={{
                       width: "100%", maxHeight: "220px", objectFit: "contain", display: "block",
-                      background: c.yellowLight,
+                      background: "rgba(255,248,235,0.6)",
                     }} />
                   </div>
 
                   {/* Caption text */}
                   <p style={{
                     fontFamily: "'Caveat', cursive",
-                    fontSize: "21px", fontWeight: "600", color: c.text,
+                    fontSize: "22px", fontWeight: "600", color: t.text,
                     lineHeight: "1.4", margin: "0", textAlign: "center",
                   }}>
                     {caption?.content}
                   </p>
 
                   {/* Vote buttons */}
-                  <div style={{ display: "flex", gap: "14px", justifyContent: "center" }}>
+                  <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
                     {[
-                      { val: 1 as const, emoji: "👍", label: "Funny!", bg: c.green, activeBorder: c.greenDark },
-                      { val: -1 as const, emoji: "👎", label: "Not funny", bg: c.pink, activeBorder: "#d4869a" },
-                    ].map(({ val, emoji, label, bg, activeBorder }) => {
+                      { val: 1 as const, emoji: "👍", label: "Funny!", color: t.yes, lightColor: t.yesLight },
+                      { val: -1 as const, emoji: "👎", label: "Not funny", color: t.accent, lightColor: t.noLight },
+                    ].map(({ val, emoji, label, color, lightColor }) => {
                       const selected = votedValue === val;
                       return (
                         <button
@@ -562,25 +562,27 @@ export default function HomePage() {
                             display: "flex", flexDirection: "column", alignItems: "center", gap: "5px",
                             padding: "14px 28px",
                             borderRadius: "18px",
-                            border: `2.5px solid ${selected ? c.text : activeBorder + "70"}`,
-                            background: selected ? bg : c.white,
-                            boxShadow: selected ? `3px 3px 0 ${c.text}` : `2px 2px 0 ${activeBorder}40`,
-                            cursor: "pointer",
+                            border: `1.5px solid ${selected ? color : color + "50"}`,
+                            background: selected ? lightColor + "cc" : "rgba(255,248,235,0.5)",
+                            boxShadow: selected
+                              ? `inset 0 2px 8px rgba(0,0,0,0.1), 0 0 0 3px ${color}25`
+                              : "none",
                             fontFamily: "'Nunito', sans-serif",
                           }}
                         >
                           <span style={{ fontSize: "30px", lineHeight: 1 }}>{emoji}</span>
                           <span style={{
                             fontSize: "11px", fontWeight: "800",
-                            color: selected ? c.text : c.textSoft,
+                            color: selected ? color : t.textSoft,
                             textTransform: "uppercase", letterSpacing: "0.06em",
+                            transition: "color 0.15s ease",
                           }}>{label}</span>
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Next */}
+                  {/* Next button */}
                   <button
                     className="next-btn"
                     onClick={handleNext}
@@ -588,10 +590,14 @@ export default function HomePage() {
                     style={{
                       width: "100%", padding: "13px",
                       borderRadius: "16px",
-                      border: votedValue !== null ? `2.5px solid ${c.text}` : `2px solid ${c.border}`,
-                      background: votedValue !== null ? c.greenDark : c.border,
-                      boxShadow: votedValue !== null ? `3px 3px 0 ${c.text}` : `inset 0 2px 6px rgba(0,0,0,0.09)`,
-                      color: votedValue !== null ? c.white : c.textSoft,
+                      border: "none",
+                      background: votedValue !== null
+                        ? `linear-gradient(135deg, ${t.accent}, #f0834a)`
+                        : "rgba(180,90,40,0.1)",
+                      boxShadow: votedValue === null
+                        ? `inset 0 2px 6px rgba(0,0,0,0.1)`
+                        : `0 4px 16px rgba(200,82,42,0.35)`,
+                      color: votedValue !== null ? "#fff8f0" : t.textSoft,
                       fontSize: "15px", fontWeight: "800",
                       cursor: votedValue !== null ? "pointer" : "not-allowed",
                       fontFamily: "'Nunito', sans-serif",
@@ -611,11 +617,11 @@ export default function HomePage() {
                   <div style={{ fontSize: "38px", marginBottom: "8px" }}>🌿</div>
                   <h2 style={{
                     fontFamily: "'Caveat', cursive",
-                    fontSize: "28px", fontWeight: "700", color: c.text, margin: "0 0 4px 0",
+                    fontSize: "28px", fontWeight: "700", color: t.text, margin: "0 0 4px 0",
                   }}>
                     Generate Captions
                   </h2>
-                  <p style={{ fontSize: "13px", color: c.textSoft, margin: "0", fontWeight: "600" }}>
+                  <p style={{ fontSize: "13px", color: t.textSoft, margin: "0", fontWeight: "600" }}>
                     Upload an image, get AI-generated captions
                   </p>
                 </div>
@@ -630,20 +636,20 @@ export default function HomePage() {
                       onClick={() => fileInputRef.current?.click()}
                       style={{
                         width: "100%",
-                        border: `2.5px dashed ${dragOver ? c.greenDark : c.border}`,
-                        borderRadius: "20px", padding: "36px 24px",
+                        border: `1.5px dashed ${dragOver ? t.accent : t.cardBorder}`,
+                        borderRadius: "18px", padding: "36px 24px",
                         textAlign: "center", cursor: "pointer",
-                        background: dragOver ? c.green + "28" : c.yellowLight,
+                        background: dragOver ? t.accentLight : t.inputBg,
                         transition: "all 0.2s ease",
                       }}
                     >
-                      <div style={{ fontSize: "40px", marginBottom: "10px", display: "inline-block", animation: dragOver ? "petal 0.5s ease infinite" : "none" }}>
+                      <div style={{ fontSize: "38px", marginBottom: "10px", display: "inline-block", animation: dragOver ? "petalRock 0.5s ease infinite" : "none" }}>
                         {dragOver ? "🌸" : "🖼️"}
                       </div>
-                      <p style={{ color: c.text, fontWeight: "800", fontSize: "15px", margin: "0 0 4px 0" }}>
+                      <p style={{ color: t.text, fontWeight: "800", fontSize: "15px", margin: "0 0 4px 0" }}>
                         Drop your image here
                       </p>
-                      <p style={{ color: c.textSoft, fontSize: "12px", margin: "0", fontWeight: "600" }}>
+                      <p style={{ color: t.textSoft, fontSize: "12px", margin: "0", fontWeight: "600" }}>
                         or click to browse · JPEG, PNG, WebP, GIF, HEIC
                       </p>
                     </div>
@@ -654,24 +660,24 @@ export default function HomePage() {
                     {uploadState === "error" && uploadError && (
                       <div style={{
                         width: "100%",
-                        background: c.pinkLight, border: `2px solid ${c.pink}`,
+                        background: "rgba(200,82,42,0.08)", border: `1.5px solid rgba(200,82,42,0.25)`,
                         borderRadius: "14px", padding: "12px 16px",
-                        color: c.text, fontSize: "14px", fontWeight: "700",
+                        color: t.text, fontSize: "14px", fontWeight: "700",
                       }}>
-                        🌷 {uploadError}
+                        🍂 {uploadError}
                       </div>
                     )}
                   </>
                 )}
 
-                {/* Loading */}
+                {/* Loading state */}
                 {isLoading && (
                   <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "16px" }}>
                     {previewUrl && (
-                      <div style={{ position: "relative", borderRadius: "16px", overflow: "hidden", border: `2px solid ${c.border}` }}>
+                      <div style={{ position: "relative", borderRadius: "14px", overflow: "hidden", border: `1.5px solid ${t.cardBorder}` }}>
                         <img src={previewUrl} alt="Preview" style={{
                           width: "100%", maxHeight: "160px", objectFit: "cover",
-                          display: "block", filter: "brightness(0.62) saturate(0.7)",
+                          display: "block", filter: "brightness(0.6) saturate(0.75)",
                         }} />
                         <div style={{
                           position: "absolute", inset: 0,
@@ -679,8 +685,8 @@ export default function HomePage() {
                         }}>
                           <div style={{
                             width: "38px", height: "38px",
-                            border: "3px solid rgba(255,255,255,0.25)",
-                            borderTop: "3px solid #fff",
+                            border: "3px solid rgba(255,255,255,0.2)",
+                            borderTop: "3px solid rgba(255,255,255,0.9)",
                             borderRadius: "50%",
                             animation: "spin 0.75s linear infinite",
                           }} />
@@ -694,21 +700,22 @@ export default function HomePage() {
                         return (
                           <div key={step.key} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                             <div style={{
-                              width: "24px", height: "24px", borderRadius: "50%", flexShrink: 0,
-                              background: done ? c.greenDark : active ? c.yellow : c.border,
-                              border: `2px solid ${done ? c.greenDark : active ? c.text : c.border}`,
+                              width: "22px", height: "22px", borderRadius: "50%", flexShrink: 0,
+                              background: done
+                                ? `linear-gradient(135deg, ${t.accent}, #f0834a)`
+                                : active ? t.accentLight : t.divider,
+                              border: `1.5px solid ${done ? t.accent : active ? t.accent + "80" : t.cardBorder}`,
                               display: "flex", alignItems: "center", justifyContent: "center",
-                              transition: "all 0.3s ease", fontSize: "12px", fontWeight: "900", color: c.white,
+                              transition: "all 0.3s ease", fontSize: "11px", color: "#fff8f0", fontWeight: "900",
                             }}>
-                              {done ? "✓" : active ? (
-                                <span style={{ animation: "blink 1s ease infinite", color: c.text }}>●</span>
-                              ) : (
-                                <span style={{ color: c.textSoft }}>○</span>
-                              )}
+                              {done ? "✓" : active
+                                ? <span style={{ animation: "blink 1s ease infinite", color: t.accent, fontSize: "8px" }}>●</span>
+                                : <span style={{ color: t.textSoft, fontSize: "8px" }}>○</span>
+                              }
                             </div>
                             <span style={{
                               fontSize: "14px", fontWeight: active ? "800" : "600",
-                              color: done ? c.greenDark : active ? c.text : c.textSoft,
+                              color: done ? t.accent : active ? t.text : t.textSoft,
                               transition: "color 0.3s ease",
                             }}>
                               {step.label}{active ? "…" : ""}
@@ -720,11 +727,11 @@ export default function HomePage() {
                   </div>
                 )}
 
-                {/* Done */}
+                {/* Done state */}
                 {uploadState === "done" && (
                   <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "14px" }}>
                     {(uploadedImageUrl || previewUrl) && (
-                      <div style={{ borderRadius: "16px", overflow: "hidden", border: `2px solid ${c.border}`, boxShadow: `3px 3px 0 ${c.border}` }}>
+                      <div style={{ borderRadius: "14px", overflow: "hidden", border: `1.5px solid ${t.cardBorder}` }}>
                         <img src={uploadedImageUrl || previewUrl!} alt="Uploaded" style={{
                           width: "100%", maxHeight: "180px", objectFit: "cover", display: "block",
                         }} />
@@ -732,27 +739,27 @@ export default function HomePage() {
                     )}
                     <div>
                       <p style={{
-                        fontSize: "11px", fontWeight: "800", color: c.textSoft,
+                        fontSize: "11px", fontWeight: "800", color: t.textSoft,
                         margin: "0 0 10px 0", textTransform: "uppercase", letterSpacing: "0.1em",
                       }}>
                         ✦ Generated Captions · {generatedCaptions.length}
                       </p>
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         {generatedCaptions.length === 0 ? (
-                          <p style={{ color: c.textSoft, fontSize: "14px", fontWeight: "600" }}>Nothing came back 🐦</p>
+                          <p style={{ color: t.textSoft, fontSize: "14px", fontWeight: "600" }}>Nothing came back 🍂</p>
                         ) : generatedCaptions.map((cap, i) => (
                           <div key={cap.id || i} style={{
-                            background: i % 2 === 0 ? c.yellowLight : c.blueLight,
-                            border: `2px solid ${c.border}`,
+                            background: i % 2 === 0 ? t.inputBg : t.stripAlt,
+                            border: `1.5px solid ${t.cardBorder}`,
                             borderRadius: "14px", padding: "11px 15px",
                             display: "flex", gap: "10px", alignItems: "flex-start",
                           }}>
-                            <span style={{ fontSize: "11px", fontWeight: "900", color: c.textSoft, minWidth: "18px", marginTop: "3px" }}>
+                            <span style={{ fontSize: "11px", fontWeight: "900", color: t.textSoft, minWidth: "18px", marginTop: "3px" }}>
                               {i + 1}.
                             </span>
                             <span style={{
                               fontFamily: "'Caveat', cursive",
-                              fontSize: "18px", color: c.text, lineHeight: "1.4",
+                              fontSize: "18px", color: t.text, lineHeight: "1.4",
                             }}>
                               {cap.content || cap.caption || JSON.stringify(cap)}
                             </span>
@@ -761,17 +768,19 @@ export default function HomePage() {
                       </div>
                     </div>
                     <button
-                      className="upload-again"
                       onClick={resetUpload}
                       style={{
                         width: "100%", padding: "12px",
-                        borderRadius: "16px", border: `2.5px solid ${c.text}`,
-                        background: c.yellow, color: c.text,
+                        borderRadius: "16px", border: "none",
+                        background: `linear-gradient(135deg, ${t.accent}, #f0834a)`,
+                        color: "#fff8f0",
                         fontSize: "15px", fontWeight: "800",
                         cursor: "pointer", fontFamily: "'Nunito', sans-serif",
-                        boxShadow: `3px 3px 0 ${c.text}`,
+                        boxShadow: `0 4px 16px rgba(200,82,42,0.3)`,
                         transition: "all 0.15s ease",
                       }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.filter = "brightness(1.06)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.filter = ""; }}
                     >
                       🌸 Upload Another
                     </button>
@@ -779,6 +788,7 @@ export default function HomePage() {
                 )}
               </Card>
             )}
+
           </div>
         )}
       </main>
