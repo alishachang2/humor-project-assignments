@@ -1,67 +1,56 @@
 import { supabase } from '../../lib/supabaseClient';
-import { theme } from '../../lib/theme';
 
 export default async function Page() {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("captions")
     .select("content")
     .limit(10);
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: theme.background,
-        fontFamily: "Inter, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "40px 24px",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "640px",
-          background: theme.card,
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderRadius: "24px",
-          border: theme.border,
-          padding: "48px",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "28px",
-            fontWeight: "700",
-            color: theme.textPrimary,
-            marginBottom: "24px",
-            letterSpacing: "-0.5px",
-          }}
-        >
-          Captions
+    <div style={{
+      minHeight: "100vh",
+      backgroundColor: 'var(--bg)',
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "40px 24px",
+    }}>
+      <div style={{
+        width: "100%",
+        maxWidth: "640px",
+        background: 'var(--bg2)',
+        borderRadius: "8px",
+        border: '1px solid var(--border)',
+        padding: "48px",
+      }}>
+        <h1 style={{
+          fontFamily: "'DM Serif Display', serif",
+          fontSize: "42px",
+          fontWeight: 400,
+          color: 'var(--text)',
+          marginBottom: "24px",
+          letterSpacing: "-0.02em",
+        }}>
+          <em>Captions.</em>
         </h1>
 
         {(!data || data.length === 0) ? (
-          <p style={{ color: theme.textSecondary }}>No rows found.</p>
+          <p style={{ color: 'var(--text2)', fontSize: 14 }}>No rows found.</p>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th
-                  style={{
-                    textAlign: "left",
-                    borderBottom: theme.border,
-                    padding: "8px",
-                    color: theme.textSecondary,
-                    fontSize: "13px",
-                    fontWeight: "500",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                  }}
-                >
+                <th style={{
+                  textAlign: "left",
+                  borderBottom: '1px solid var(--border)',
+                  padding: "8px",
+                  color: 'var(--text2)',
+                  fontSize: "9px",
+                  fontWeight: "600",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.12em",
+                }}>
                   Content
                 </th>
               </tr>
@@ -69,14 +58,13 @@ export default async function Page() {
             <tbody>
               {data.map((row, i) => (
                 <tr key={i}>
-                  <td
-                    style={{
-                      borderBottom: theme.border,
-                      padding: "12px 8px",
-                      color: theme.textPrimary,
-                      fontSize: "15px",
-                    }}
-                  >
+                  <td style={{
+                    borderBottom: '1px solid var(--border)',
+                    padding: "12px 8px",
+                    color: 'var(--text)',
+                    fontSize: "14px",
+                    lineHeight: 1.6,
+                  }}>
                     {row.content}
                   </td>
                 </tr>

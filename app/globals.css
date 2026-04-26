@@ -1,8 +1,30 @@
 @import "tailwindcss";
 
-body {
-  background: linear-gradient(160deg, #f5b942 0%, #f08050 50%, #f0c080 100%);
-  color: #2e1a0e;
-  font-family: 'Inter', system-ui, sans-serif;
-  min-height: 100vh;
+:root {
+  --bg: #ffffff;
+  --bg2: #f9f9f9;
+  --border: #ebebeb;
+  --text: #1a1a1a;
+  --text2: #888888;
+  --accent: #1a1a1a;
+  --accent-fg: #ffffff;
+  --green: #BDE081;
+  --status-done: #1e8a4a;
+  --status-error: #c0392b;
 }
+
+.dark {
+  --bg: #0f0f0f;
+  --bg2: #1a1a1a;
+  --border: #2a2a2a;
+  --text: #f0f0f0;
+  --text2: #777777;
+  --accent: #f0f0f0;
+  --accent-fg: #0f0f0f;
+  --green: #BDE081;
+  --status-done: #5dde8e;
+  --status-error: #e05c5c;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; }

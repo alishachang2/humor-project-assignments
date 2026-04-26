@@ -1,7 +1,6 @@
 "use client";
 
 import { createBrowserClient } from "@supabase/ssr";
-import { theme } from "@/lib/theme";
 
 export default function LoginPage() {
   const supabase = createBrowserClient(
@@ -17,112 +16,23 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: theme.background,
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
-      {/* Glass card */}
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "460px",
-          margin: "0 24px",
-          background: theme.card,
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          borderRadius: "24px",
-          border: theme.border,
-          padding: "52px 48px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "0",
-        }}
-      >
-        {/* Smiley icon */}
-        <div
-          style={{
-            width: "64px",
-            height: "64px",
-            background: theme.icon,
-            borderRadius: "18px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: "28px",
-          }}
-        >
-          <svg width="32" height="32" fill="none" stroke={theme.iconStroke} strokeWidth="2" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" strokeWidth="2" />
-            <circle cx="9" cy="9" r="1.5" fill={theme.iconStroke} stroke="none" />
-            <circle cx="15" cy="9" r="1.5" fill={theme.iconStroke} stroke="none" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 15c1.5 1.5 3 2 4 2s2.5-.5 4-2" />
-          </svg>
-        </div>
+    <div style={s.page}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+      <div style={{ height: 3, backgroundColor: 'var(--green)' }} />
 
-        {/* Heading */}
-        <h1
-          style={{
-            fontSize: "36px",
-            fontWeight: "700",
-            color: theme.textPrimary,
-            margin: "0 0 10px 0",
-            letterSpacing: "-0.5px",
-            textAlign: "center",
-          }}
-        >
-          Welcome back
-        </h1>
+      <header style={s.header}>
+        <span style={s.label}>The Humor Project</span>
+        <span style={{ ...s.label, color: 'var(--text2)' }}>Assignments</span>
+      </header>
 
-        {/* Subtitle */}
-        <p
-          style={{
-            fontSize: "16px",
-            color: theme.textSecondary,
-            margin: "0 0 36px 0",
-            textAlign: "center",
-          }}
-        >
-          Sign in to continue to your account
+      <main style={s.main}>
+        <p style={s.eyebrow}>Sign In</p>
+        <h1 style={s.heading}>Welcome<br /><em>back.</em></h1>
+        <p style={s.body}>
+          Rate captions and upload images for the Humor Project.
         </p>
-
-        {/* Google button */}
-        <button
-          onClick={handleGoogleLogin}
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "12px",
-            padding: "16px 24px",
-            background: "#ffffff",
-            border: "none",
-            borderRadius: "50px",
-            fontSize: "16px",
-            fontWeight: "600",
-            color: "#2d2d2d",
-            cursor: "pointer",
-            fontFamily: "Inter, sans-serif",
-            boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-            transition: "transform 0.15s ease, box-shadow 0.15s ease",
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.02)";
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 20px rgba(0,0,0,0.2)";
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
-            (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 12px rgba(0,0,0,0.15)";
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24">
+        <button type="button" onClick={handleGoogleLogin} style={s.button} className="login-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
@@ -130,20 +40,77 @@ export default function LoginPage() {
           </svg>
           Continue with Google
         </button>
+      </main>
 
-        {/* Terms */}
-        <p
-          style={{
-            fontSize: "13px",
-            color: theme.textMuted,
-            textAlign: "center",
-            marginTop: "28px",
-            lineHeight: "1.6",
-          }}
-        >
-          By continuing, you agree to our Terms of Service<br />and Privacy Policy
-        </p>
-      </div>
+      <footer style={s.footer}>
+        <span style={s.label}>© 2026</span>
+      </footer>
+
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .login-btn:hover { background: var(--accent) !important; color: var(--accent-fg) !important; }
+        .login-btn:hover svg path { fill: var(--accent-fg) !important; }
+      `}</style>
     </div>
   );
 }
+
+const s: Record<string, React.CSSProperties> = {
+  page: {
+    minHeight: '100vh',
+    backgroundColor: 'var(--bg)',
+    color: 'var(--text)',
+    display: 'flex',
+    flexDirection: 'column',
+    animation: 'fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards',
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '16px 48px',
+    borderBottom: '1px solid var(--border)',
+  },
+  label: { fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' as const },
+  eyebrow: { fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase' as const, color: 'var(--text2)', marginBottom: 16 },
+  main: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: '0 48px',
+    maxWidth: 560,
+  },
+  heading: {
+    fontFamily: "'DM Serif Display', serif",
+    fontSize: 84,
+    fontWeight: 400,
+    lineHeight: 0.92,
+    letterSpacing: '-0.03em',
+    marginBottom: 24,
+  },
+  body: { fontSize: 14, lineHeight: 1.7, color: 'var(--text2)', marginBottom: 32, maxWidth: 400 },
+  button: {
+    alignSelf: 'flex-start',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    padding: '11px 28px',
+    border: '1px solid var(--accent)',
+    background: 'transparent',
+    color: 'var(--text)',
+    fontSize: 11,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase' as const,
+    cursor: 'pointer',
+    transition: 'background 0.15s, color 0.15s',
+  },
+  footer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '14px 48px',
+    borderTop: '1px solid var(--border)',
+  },
+};

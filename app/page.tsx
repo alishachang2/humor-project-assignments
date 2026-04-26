@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
-import { theme } from "@/lib/theme";
+import { useTheme } from "next-themes";
 
 type Caption = {
   id: string;
@@ -23,25 +23,8 @@ const STEPS = [
   { key: "generating", label: "Generating captions" },
 ];
 
-const t = {
-  cardBg: "rgba(255, 250, 240, 0.82)",
-  cardBorder: "rgba(180, 90, 40, 0.18)",
-  cardShadow: "rgba(180, 90, 40, 0.15)",
-  accent: "#c8522a",
-  accentLight: "rgba(200, 82, 42, 0.12)",
-  accentMid: "rgba(200, 82, 42, 0.22)",
-  yes: "#7daa5a",
-  yesLight: "rgba(125, 170, 90, 0.15)",
-  noLight: "rgba(200, 82, 42, 0.1)",
-  text: "#2e1a0e",
-  textSoft: "rgba(46, 26, 14, 0.55)",
-  tabActiveBg: "rgba(200, 82, 42, 0.14)",
-  divider: "rgba(180, 90, 40, 0.14)",
-  inputBg: "rgba(255, 248, 235, 0.7)",
-  stripAlt: "rgba(245, 200, 66, 0.18)",
-};
-
-function ThumbUp({ filled, color }: { filled: boolean; color: string }) {
+function ThumbUp({ filled }: { filled: boolean }) {
+  const color = "var(--green)";
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill={filled ? color : "none"} stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
@@ -50,7 +33,8 @@ function ThumbUp({ filled, color }: { filled: boolean; color: string }) {
   );
 }
 
-function ThumbDown({ filled, color }: { filled: boolean; color: string }) {
+function ThumbDown({ filled }: { filled: boolean }) {
+  const color = "var(--status-error)";
   return (
     <svg width="28" height="28" viewBox="0 0 24 24" fill={filled ? color : "none"} stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z" />
@@ -63,17 +47,14 @@ function Card({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       width: "100%",
-      background: t.cardBg,
-      backdropFilter: "blur(18px)",
-      WebkitBackdropFilter: "blur(18px)",
-      borderRadius: "28px",
-      border: `2px solid ${t.cardBorder}`,
-      padding: "30px 34px",
+      background: "var(--bg2)",
+      border: "1px solid var(--border)",
+      borderRadius: "8px",
+      padding: "28px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       gap: "20px",
-      boxShadow: `0 8px 32px ${t.cardShadow}, 0 2px 8px rgba(0,0,0,0.06)`,
     }}>
       {children}
     </div>
@@ -82,6 +63,7 @@ function Card({ children }: { children: React.ReactNode }) {
 
 export default function HomePage() {
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [user, setUser] = useState<any>(null);
   const [captions, setCaptions] = useState<Caption[]>([]);
   const [index, setIndex] = useState(0);
@@ -264,14 +246,9 @@ export default function HomePage() {
   const caption = captions[index];
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: theme.background,
-      fontFamily: "Inter, sans-serif",
-      display: "flex",
-      flexDirection: "column",
-      position: "relative",
-    }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "var(--bg)", display: "flex", flexDirection: "column" }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+
       <style>{`
         @keyframes fadeInOut {
           0%   { opacity: 0; transform: translateY(8px); }
@@ -289,232 +266,157 @@ export default function HomePage() {
           60%  { transform: translateX(-50%) scale(1.03) translateY(-1px); }
           100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
         }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0.15; }
-        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.15; } }
         @keyframes popIn {
           from { opacity: 0; transform: translateY(-6px) scale(0.95); }
           to   { opacity: 1; transform: translateY(0) scale(1); }
         }
-
         .vote-btn { transition: all 0.15s ease; cursor: pointer; }
         .vote-btn:hover { transform: scale(1.06); }
         .vote-btn:active { transform: scale(0.93); }
-
         .next-btn { transition: all 0.18s ease; }
-        .next-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.06); }
-
+        .next-btn:hover:not(:disabled) { opacity: 0.85; }
         .tab-btn { transition: all 0.16s ease; cursor: pointer; }
-        .tab-btn:hover { opacity: 0.85; }
+        .tab-btn:hover { opacity: 0.8; }
       `}</style>
 
       {/* Toast */}
       {toast.visible && (
         <div style={{
           position: "fixed", bottom: "36px", left: "50%",
-          background: theme.card,
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          border: theme.border,
-          borderRadius: "999px",
-          padding: "10px 26px",
-          fontSize: "14px", fontWeight: "600", color: theme.textPrimary,
+          background: "var(--bg2)",
+          border: "1px solid var(--border)",
+          borderRadius: "4px",
+          padding: "10px 20px",
+          fontSize: "12px", fontWeight: "600", color: "var(--text)",
+          letterSpacing: "0.06em", textTransform: "uppercase",
           zIndex: 300, whiteSpace: "nowrap",
-          boxShadow: `0 6px 24px rgba(180,90,40,0.2)`,
           animation: "toastPop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards",
         }}>
           {toast.msg}
         </div>
       )}
 
-      {/* ── Original Navbar ── */}
-      <div style={{
-        position: "fixed",
-        top: "20px",
-        left: "0",
-        right: "0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 24px",
-        zIndex: 50,
-      }}>
-        {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <div style={{
-            width: "24px",
-            height: "24px",
-            background: theme.icon,
-            borderRadius: "6px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}>
-            <svg width="14" height="14" fill="none" stroke={theme.iconStroke} strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" />
-              <circle cx="9" cy="9" r="1.5" fill={theme.iconStroke} stroke="none" />
-              <circle cx="15" cy="9" r="1.5" fill={theme.iconStroke} stroke="none" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 15c1.5 1.5 3 2 4 2s2.5-.5 4-2" />
-            </svg>
+      {/* Header */}
+      <div style={{ position: "sticky", top: 0, zIndex: 10, backgroundColor: "var(--bg)", borderBottom: "1px solid var(--border)" }}>
+        <div style={{ height: 3, backgroundColor: "var(--green)" }} />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 32px" }}>
+          <div>
+            <p style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--text2)", marginBottom: 2 }}>The Humor Project</p>
+            <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1 }}>
+              <em>Assignments.</em>
+            </h1>
           </div>
-          <span style={{ color: theme.textPrimary, fontWeight: "600", fontSize: "14px" }}>Humor Project</span>
-        </div>
 
-        {/* Right side: profile pill (clickable) */}
-        <div ref={profileRef} style={{ position: "relative", display: "flex", alignItems: "center", gap: "8px" }}>
-          {/* Clickable profile pill */}
-          <button
-            onClick={() => setProfileOpen(o => !o)}
-            style={{
-              background: theme.card,
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              border: profileOpen ? `1px solid rgba(180,90,40,0.4)` : theme.border,
-              borderRadius: "999px",
-              padding: "8px 16px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              fontSize: "14px",
-              color: theme.textPrimary,
-              fontWeight: "500",
-              cursor: "pointer",
-              fontFamily: "Inter, sans-serif",
-              transition: "all 0.15s ease",
-              outline: "none",
-            }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = "0.85")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
-          >
-            {user.user_metadata?.avatar_url && (
-              <img
-                src={user.user_metadata.avatar_url}
-                alt="avatar"
-                style={{ width: "22px", height: "22px", borderRadius: "50%" }}
-              />
-            )}
-            {user.user_metadata?.given_name || user.user_metadata?.full_name || user.email}
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ opacity: 0.5, transition: "transform 0.15s ease", transform: profileOpen ? "rotate(180deg)" : "none" }}>
-              <path d="M2 3.5L5 6.5L8 3.5" stroke={theme.textPrimary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : theme === "light" ? "system" : "dark")}
+              style={{ background: "none", border: "1px solid var(--border)", padding: "5px 10px", cursor: "pointer", fontSize: 11, color: "var(--text2)", borderRadius: 4, letterSpacing: "0.06em", textTransform: "uppercase" }}
+            >
+              {theme === "dark" ? "☀ Light" : theme === "light" ? "⊙ System" : "☾ Dark"}
+            </button>
 
-          {/* Profile dropdown */}
-          {profileOpen && (
-            <div style={{
-              position: "absolute",
-              top: "calc(100% + 10px)",
-              right: 0,
-              background: "rgba(255, 250, 240, 0.97)",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              border: theme.border,
-              borderRadius: "16px",
-              padding: "8px",
-              minWidth: "190px",
-              boxShadow: `0 12px 36px rgba(180,90,40,0.15)`,
-              animation: "popIn 0.18s cubic-bezier(0.34,1.56,0.64,1) forwards",
-              zIndex: 200,
-            }}>
-              {/* User info */}
-              <div style={{
-                padding: "10px 12px 11px",
-                borderBottom: `1px solid rgba(180,90,40,0.1)`,
-                marginBottom: "6px",
-              }}>
-                <div style={{ fontSize: "13px", fontWeight: "700", color: theme.textPrimary }}>
-                  {user.user_metadata?.full_name || user.user_metadata?.given_name || "Account"}
-                </div>
-                <div style={{ fontSize: "11px", color: theme.textSecondary, marginTop: "2px" }}>
-                  {user.email}
-                </div>
-              </div>
-
-              {/* Sign out */}
+            <div ref={profileRef} style={{ position: "relative" }}>
               <button
-                onClick={handleSignOut}
+                onClick={() => setProfileOpen(o => !o)}
                 style={{
-                  width: "100%",
-                  padding: "9px 12px",
-                  borderRadius: "10px",
-                  border: "none",
-                  background: "transparent",
-                  color: theme.textPrimary,
-                  fontSize: "13px", fontWeight: "600",
-                  cursor: "pointer",
-                  fontFamily: "Inter, sans-serif",
-                  textAlign: "left",
-                  display: "flex", alignItems: "center", gap: "8px",
-                  transition: "background 0.12s ease",
+                  background: "var(--bg2)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 4,
+                  padding: "6px 12px",
+                  display: "flex", alignItems: "center", gap: 8,
+                  fontSize: 11, color: "var(--text)", fontWeight: 500,
+                  cursor: "pointer", letterSpacing: "0.04em",
+                  outline: "none", transition: "opacity 0.15s",
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = "rgba(200,82,42,0.08)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "0.75")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
               >
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
+                {user.user_metadata?.avatar_url && (
+                  <img src={user.user_metadata.avatar_url} alt="avatar" style={{ width: 18, height: 18, borderRadius: "50%" }} />
+                )}
+                {user.user_metadata?.given_name || user.user_metadata?.full_name || user.email}
+                <svg width="8" height="8" viewBox="0 0 10 10" fill="none" style={{ opacity: 0.5, transition: "transform 0.15s", transform: profileOpen ? "rotate(180deg)" : "none" }}>
+                  <path d="M2 3.5L5 6.5L8 3.5" stroke="var(--text)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Sign out
               </button>
+
+              {profileOpen && (
+                <div style={{
+                  position: "absolute", top: "calc(100% + 6px)", right: 0,
+                  background: "var(--bg)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 6, padding: 6, minWidth: 180,
+                  animation: "popIn 0.15s ease forwards", zIndex: 200,
+                }}>
+                  <div style={{ padding: "8px 10px 10px", borderBottom: "1px solid var(--border)", marginBottom: 4 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>
+                      {user.user_metadata?.full_name || user.user_metadata?.given_name || "Account"}
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--text2)", marginTop: 2 }}>{user.email}</div>
+                  </div>
+                  <button
+                    onClick={handleSignOut}
+                    style={{
+                      width: "100%", padding: "7px 10px", borderRadius: 4,
+                      border: "none", background: "transparent",
+                      color: "var(--text)", fontSize: 12, fontWeight: 600,
+                      cursor: "pointer", textAlign: "left",
+                      display: "flex", alignItems: "center", gap: 8,
+                      letterSpacing: "0.04em",
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "var(--bg2)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                  >
+                    <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Sign out
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* ── Main ── */}
+      {/* Main */}
       <main style={{
         flex: 1, display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
-        padding: "80px 24px 48px",
-        minHeight: "100vh", boxSizing: "border-box", gap: "16px",
-        position: "relative", zIndex: 1,
+        padding: "40px 24px 48px", gap: "16px",
       }}>
 
         {showGreeting ? (
           <div style={{
-            width: "100%", maxWidth: "500px",
-            background: theme.card,
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            borderRadius: "24px",
-            border: theme.border,
-            padding: "52px 48px", textAlign: "center",
+            width: "100%", maxWidth: "480px",
+            background: "var(--bg2)",
+            border: "1px solid var(--border)",
+            borderRadius: 8,
+            padding: "48px 40px", textAlign: "center",
             animation: "fadeInOut 2s ease forwards",
           }}>
-            <h1 style={{
-              fontSize: "36px", fontWeight: "700", color: theme.textPrimary,
-              margin: "0 0 12px 0", letterSpacing: "-0.5px",
-            }}>
-              Hey, {user.user_metadata?.given_name || "there"} 👋
-            </h1>
-            <p style={{ fontSize: "16px", color: theme.textSecondary, margin: "0" }}>
-              You're signed in as <strong style={{ color: theme.textPrimary }}>{user.user_metadata?.email || user.email}</strong>
+            <p style={{ fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text2)", marginBottom: 12 }}>Welcome back</p>
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 42, fontWeight: 400, color: "var(--text)", margin: "0 0 12px 0", letterSpacing: "-0.02em" }}>
+              <em>Hey, {user.user_metadata?.given_name || "there"}.</em>
+            </h2>
+            <p style={{ fontSize: 14, color: "var(--text2)", margin: 0 }}>
+              Signed in as <strong style={{ color: "var(--text)", fontWeight: 600 }}>{user.user_metadata?.email || user.email}</strong>
             </p>
           </div>
 
         ) : (
-          <div style={{
-            width: "100%", maxWidth: "500px",
-            display: "flex", flexDirection: "column", gap: "16px",
-            animation: "floatUp 0.4s ease forwards",
-          }}>
+          <div style={{ width: "100%", maxWidth: "480px", display: "flex", flexDirection: "column", gap: "16px", animation: "floatUp 0.4s ease forwards" }}>
 
             {/* Tab Toggle */}
-            <div style={{
-              display: "flex", gap: "6px",
-              background: theme.card,
-              backdropFilter: "blur(12px)",
-              WebkitBackdropFilter: "blur(12px)",
-              borderRadius: "20px",
-              border: theme.border,
-              padding: "5px",
-            }}>
+            <div style={{ display: "flex", gap: 0, border: "1px solid var(--border)", borderRadius: 4, overflow: "hidden" }}>
               {[
                 { key: "rate", label: "Rate Captions" },
                 { key: "upload", label: "Upload Image" },
-              ].map((tb) => {
+              ].map((tb, i) => {
                 const active = tab === tb.key;
                 return (
                   <button
@@ -522,14 +424,13 @@ export default function HomePage() {
                     className="tab-btn"
                     onClick={() => { setTab(tb.key as Tab); if (tb.key === "rate") resetUpload(); }}
                     style={{
-                      flex: 1, padding: "10px 16px",
-                      borderRadius: "15px",
+                      flex: 1, padding: "9px 16px",
                       border: "none",
-                      background: active ? t.tabActiveBg : "transparent",
-                      color: active ? theme.textPrimary : theme.textSecondary,
-                      fontSize: "14px", fontWeight: active ? "600" : "400",
-                      fontFamily: "Inter, sans-serif",
-                      display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                      borderLeft: i > 0 ? "1px solid var(--border)" : "none",
+                      background: active ? "var(--accent)" : "var(--bg)",
+                      color: active ? "var(--accent-fg)" : "var(--text2)",
+                      fontSize: 11, fontWeight: active ? 600 : 400,
+                      letterSpacing: "0.06em", textTransform: "uppercase" as const,
                     }}
                   >
                     {tb.label}
@@ -542,81 +443,70 @@ export default function HomePage() {
             {tab === "rate" && (
               captions.length === 0 ? (
                 <Card>
-                  <p style={{ fontSize: "16px", color: theme.textSecondary, fontWeight: "500", margin: 0 }}>
-                    No captions found.
-                  </p>
+                  <p style={{ fontSize: 14, color: "var(--text2)", margin: 0 }}>No captions found.</p>
                 </Card>
               ) : (
                 <Card>
                   {/* Progress */}
                   <div style={{ width: "100%" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: theme.textSecondary, marginBottom: "8px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text2)", marginBottom: 8, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                       <span>Rate this caption</span>
                       <span>{index + 1} / {captions.length}</span>
                     </div>
-                    <div style={{ width: "100%", height: "4px", background: "rgba(180,90,40,0.12)", borderRadius: "999px", overflow: "hidden" }}>
+                    <div style={{ width: "100%", height: 3, background: "var(--border)", borderRadius: 999, overflow: "hidden" }}>
                       <div style={{
                         height: "100%",
                         width: `${((index + (votedValue !== null ? 1 : 0)) / captions.length) * 100}%`,
-                        background: `linear-gradient(90deg, ${t.accent}, #f0834a)`,
-                        borderRadius: "999px",
+                        background: "var(--accent)",
+                        borderRadius: 999,
                         transition: "width 0.3s ease",
                       }} />
                     </div>
                   </div>
 
-                  <div style={{ width: "100%", height: "1px", background: t.divider }} />
+                  <div style={{ width: "100%", height: 1, background: "var(--border)" }} />
 
                   {/* Image */}
-                  <div style={{ width: "100%", borderRadius: "14px", overflow: "hidden", border: `1px solid ${t.cardBorder}` }}>
+                  <div style={{ width: "100%", borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
                     <img src={caption.imageUrl} alt={caption.content} style={{
                       width: "100%", maxHeight: "230px", objectFit: "contain", display: "block",
-                      background: "rgba(255,248,235,0.5)",
+                      background: "var(--bg2)",
                     }} />
                   </div>
 
                   {/* Caption text */}
-                  <p style={{
-                    fontSize: "16px", fontWeight: "600", color: theme.textPrimary,
-                    lineHeight: "1.4", margin: "0", textAlign: "center",
-                  }}>
+                  <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", lineHeight: 1.5, margin: 0, textAlign: "center" }}>
                     {caption?.content}
                   </p>
 
-                  {/* Vote buttons — SVG icons only, no labels */}
-                  <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-                    {/* Thumbs up */}
+                  {/* Vote buttons */}
+                  <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
                     <button
                       className="vote-btn"
                       onClick={() => setVotedValue(1)}
                       style={{
-                        width: "56px", height: "56px",
-                        borderRadius: "50%",
-                        border: `1.5px solid ${votedValue === 1 ? t.yes : t.yes + "50"}`,
-                        background: votedValue === 1 ? t.yesLight : "rgba(255,248,235,0.4)",
-                        boxShadow: votedValue === 1 ? `0 0 0 3px ${t.yes}25, inset 0 1px 4px rgba(0,0,0,0.06)` : "none",
+                        width: 56, height: 56, borderRadius: "50%",
+                        border: `1.5px solid ${votedValue === 1 ? "var(--green)" : "var(--border)"}`,
+                        background: votedValue === 1 ? "rgba(189,224,129,0.15)" : "var(--bg)",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         transition: "all 0.15s ease",
                       }}
                     >
-                      <ThumbUp filled={votedValue === 1} color={t.yes} />
+                      <ThumbUp filled={votedValue === 1} />
                     </button>
 
-                    {/* Thumbs down */}
                     <button
                       className="vote-btn"
                       onClick={() => setVotedValue(-1)}
                       style={{
-                        width: "56px", height: "56px",
-                        borderRadius: "50%",
-                        border: `1.5px solid ${votedValue === -1 ? t.accent : t.accent + "50"}`,
-                        background: votedValue === -1 ? t.noLight : "rgba(255,248,235,0.4)",
-                        boxShadow: votedValue === -1 ? `0 0 0 3px ${t.accent}25, inset 0 1px 4px rgba(0,0,0,0.06)` : "none",
+                        width: 56, height: 56, borderRadius: "50%",
+                        border: `1.5px solid ${votedValue === -1 ? "var(--status-error)" : "var(--border)"}`,
+                        background: votedValue === -1 ? "rgba(192,57,43,0.08)" : "var(--bg)",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         transition: "all 0.15s ease",
                       }}
                     >
-                      <ThumbDown filled={votedValue === -1} color={t.accent} />
+                      <ThumbDown filled={votedValue === -1} />
                     </button>
                   </div>
 
@@ -626,19 +516,15 @@ export default function HomePage() {
                     onClick={handleNext}
                     disabled={votedValue === null}
                     style={{
-                      width: "100%", padding: "12px",
-                      borderRadius: "14px",
-                      border: "none",
-                      background: votedValue !== null
-                        ? `linear-gradient(135deg, ${t.accent}, #f0834a)`
-                        : "rgba(180,90,40,0.08)",
-                      boxShadow: votedValue === null
-                        ? `inset 0 2px 6px rgba(0,0,0,0.08)`
-                        : `0 4px 16px rgba(200,82,42,0.3)`,
-                      color: votedValue !== null ? "#fff8f0" : theme.textSecondary,
-                      fontSize: "15px", fontWeight: "600",
+                      width: "100%", padding: "11px",
+                      borderRadius: 4,
+                      border: "1px solid var(--accent)",
+                      background: votedValue !== null ? "var(--accent)" : "transparent",
+                      color: votedValue !== null ? "var(--accent-fg)" : "var(--text2)",
+                      fontSize: 11, fontWeight: 600,
+                      letterSpacing: "0.08em", textTransform: "uppercase",
                       cursor: votedValue !== null ? "pointer" : "not-allowed",
-                      fontFamily: "Inter, sans-serif",
+                      transition: "all 0.15s ease",
                     }}
                   >
                     Next →
@@ -651,12 +537,10 @@ export default function HomePage() {
             {tab === "upload" && (
               <Card>
                 <div style={{ textAlign: "center", width: "100%" }}>
-                  <h2 style={{ fontSize: "18px", fontWeight: "700", color: theme.textPrimary, margin: "0 0 4px 0" }}>
-                    Generate Captions
+                  <p style={{ fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text2)", marginBottom: 6 }}>Upload</p>
+                  <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, fontWeight: 400, color: "var(--text)", margin: "0 0 4px 0", letterSpacing: "-0.02em" }}>
+                    <em>Generate Captions.</em>
                   </h2>
-                  <p style={{ fontSize: "13px", color: theme.textSecondary, margin: "0" }}>
-                    Upload an image to generate AI captions
-                  </p>
                 </div>
 
                 {/* Idle / Error */}
@@ -669,26 +553,22 @@ export default function HomePage() {
                       onClick={() => fileInputRef.current?.click()}
                       style={{
                         width: "100%",
-                        border: `1.5px dashed ${dragOver ? t.accent : t.cardBorder}`,
-                        borderRadius: "16px", padding: "36px 24px",
+                        border: `1px dashed ${dragOver ? "var(--accent)" : "var(--border)"}`,
+                        borderRadius: 6, padding: "36px 24px",
                         textAlign: "center", cursor: "pointer",
-                        background: dragOver ? t.accentLight : t.inputBg,
+                        background: dragOver ? "var(--bg2)" : "var(--bg)",
                         transition: "all 0.2s ease",
                       }}
                     >
-                      <div style={{ marginBottom: "10px", display: "flex", justifyContent: "center" }}>
-                        <svg width="32" height="32" fill="none" stroke={theme.textSecondary} strokeWidth="1.5" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                      <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}>
+                        <svg width="28" height="28" fill="none" stroke="var(--text2)" strokeWidth="1.5" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
                           <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                           <circle cx="8.5" cy="8.5" r="1.5" />
                           <polyline points="21 15 16 10 5 21" />
                         </svg>
                       </div>
-                      <p style={{ color: theme.textPrimary, fontWeight: "600", fontSize: "15px", margin: "0 0 4px 0" }}>
-                        Drop your image here
-                      </p>
-                      <p style={{ color: theme.textSecondary, fontSize: "12px", margin: "0" }}>
-                        or click to browse · JPEG, PNG, WebP, GIF, HEIC
-                      </p>
+                      <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 13, margin: "0 0 4px 0" }}>Drop your image here</p>
+                      <p style={{ color: "var(--text2)", fontSize: 11, margin: 0, letterSpacing: "0.04em" }}>or click to browse · JPEG, PNG, WebP, GIF, HEIC</p>
                     </div>
                     <input ref={fileInputRef} type="file"
                       accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic"
@@ -697,9 +577,9 @@ export default function HomePage() {
                     {uploadState === "error" && uploadError && (
                       <div style={{
                         width: "100%",
-                        background: "rgba(200,82,42,0.08)", border: `1px solid rgba(200,82,42,0.25)`,
-                        borderRadius: "12px", padding: "12px 16px",
-                        color: theme.textPrimary, fontSize: "14px", fontWeight: "500",
+                        background: "transparent", border: "1px solid var(--status-error)",
+                        borderRadius: 4, padding: "10px 14px",
+                        color: "var(--status-error)", fontSize: 12,
                       }}>
                         {uploadError}
                       </div>
@@ -709,55 +589,39 @@ export default function HomePage() {
 
                 {/* Loading */}
                 {isLoading && (
-                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "16px" }}>
+                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
                     {previewUrl && (
-                      <div style={{ position: "relative", borderRadius: "12px", overflow: "hidden", border: `1px solid ${t.cardBorder}` }}>
-                        <img src={previewUrl} alt="Preview" style={{
-                          width: "100%", maxHeight: "160px", objectFit: "contain",
-                          display: "block", filter: "brightness(0.6) saturate(0.7)",
-                        }} />
-                        <div style={{
-                          position: "absolute", inset: 0,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                        }}>
-                          <div style={{
-                            width: "36px", height: "36px",
-                            border: "2.5px solid rgba(255,255,255,0.2)",
-                            borderTop: "2.5px solid rgba(255,255,255,0.9)",
-                            borderRadius: "50%",
-                            animation: "spin 0.75s linear infinite",
-                          }} />
+                      <div style={{ position: "relative", borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
+                        <img src={previewUrl} alt="Preview" style={{ width: "100%", maxHeight: 160, objectFit: "contain", display: "block", filter: "brightness(0.6) saturate(0.7)" }} />
+                        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <div style={{ width: 32, height: 32, border: "2px solid rgba(255,255,255,0.2)", borderTop: "2px solid rgba(255,255,255,0.9)", borderRadius: "50%", animation: "spin 0.75s linear infinite" }} />
                         </div>
                       </div>
                     )}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       {STEPS.map((step, i) => {
                         const done = i < currentStep;
                         const active = i === currentStep;
                         return (
-                          <div key={step.key} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div key={step.key} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                             <div style={{
-                              width: "20px", height: "20px", borderRadius: "50%", flexShrink: 0,
-                              background: done ? t.accent : active ? t.accentLight : "rgba(180,90,40,0.08)",
-                              border: `1.5px solid ${done ? t.accent : active ? t.accent + "60" : t.cardBorder}`,
+                              width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
+                              background: done ? "var(--accent)" : "var(--bg2)",
+                              border: `1.5px solid ${done ? "var(--accent)" : active ? "var(--text2)" : "var(--border)"}`,
                               display: "flex", alignItems: "center", justifyContent: "center",
                               transition: "all 0.3s ease",
                             }}>
                               {done ? (
-                                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                                  <path d="M2 5l2 2.5L8 3" stroke="#fff8f0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                <svg width="9" height="9" viewBox="0 0 10 10" fill="none">
+                                  <path d="M2 5l2 2.5L8 3" stroke="var(--accent-fg)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                               ) : active ? (
-                                <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: t.accent, animation: "blink 1.2s ease infinite" }} />
+                                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--text2)", animation: "blink 1.2s ease infinite" }} />
                               ) : (
-                                <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: t.cardBorder }} />
+                                <div style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--border)" }} />
                               )}
                             </div>
-                            <span style={{
-                              fontSize: "14px", fontWeight: active ? "600" : "400",
-                              color: done ? t.accent : active ? theme.textPrimary : theme.textSecondary,
-                              transition: "color 0.3s ease",
-                            }}>
+                            <span style={{ fontSize: 12, fontWeight: active ? 600 : 400, color: done ? "var(--text)" : active ? "var(--text)" : "var(--text2)", transition: "color 0.3s ease" }}>
                               {step.label}{active ? "…" : ""}
                             </span>
                           </div>
@@ -769,35 +633,27 @@ export default function HomePage() {
 
                 {/* Done */}
                 {uploadState === "done" && (
-                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "14px" }}>
+                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14 }}>
                     {(uploadedImageUrl || previewUrl) && (
-                      <div style={{ borderRadius: "12px", overflow: "hidden", border: `1px solid ${t.cardBorder}` }}>
-                        <img src={uploadedImageUrl || previewUrl!} alt="Uploaded" style={{
-                          width: "100%", maxHeight: "180px", objectFit: "contain", display: "block",
-                        }} />
+                      <div style={{ borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
+                        <img src={uploadedImageUrl || previewUrl!} alt="Uploaded" style={{ width: "100%", maxHeight: 180, objectFit: "contain", display: "block" }} />
                       </div>
                     )}
                     <div>
-                      <p style={{
-                        fontSize: "11px", fontWeight: "600", color: theme.textSecondary,
-                        margin: "0 0 10px 0", textTransform: "uppercase", letterSpacing: "0.08em",
-                      }}>
+                      <p style={{ fontSize: 9, fontWeight: 600, color: "var(--text2)", margin: "0 0 10px 0", textTransform: "uppercase", letterSpacing: "0.12em" }}>
                         Generated Captions · {generatedCaptions.length}
                       </p>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                         {generatedCaptions.length === 0 ? (
-                          <p style={{ color: theme.textSecondary, fontSize: "14px" }}>No captions returned.</p>
+                          <p style={{ color: "var(--text2)", fontSize: 13 }}>No captions returned.</p>
                         ) : generatedCaptions.map((cap, i) => (
                           <div key={cap.id || i} style={{
-                            background: i % 2 === 0 ? t.inputBg : t.stripAlt,
-                            border: `1px solid ${t.cardBorder}`,
-                            borderRadius: "12px", padding: "11px 14px",
-                            display: "flex", gap: "10px", alignItems: "flex-start",
+                            background: "var(--bg2)", border: "1px solid var(--border)",
+                            borderRadius: 4, padding: "10px 12px",
+                            display: "flex", gap: 10, alignItems: "flex-start",
                           }}>
-                            <span style={{ fontSize: "11px", fontWeight: "700", color: theme.textSecondary, minWidth: "18px", marginTop: "2px" }}>
-                              {i + 1}.
-                            </span>
-                            <span style={{ fontSize: "14px", color: theme.textPrimary, lineHeight: "1.5" }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text2)", minWidth: 16, marginTop: 2 }}>{i + 1}.</span>
+                            <span style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>
                               {cap.content || cap.caption || JSON.stringify(cap)}
                             </span>
                           </div>
@@ -807,17 +663,15 @@ export default function HomePage() {
                     <button
                       onClick={resetUpload}
                       style={{
-                        width: "100%", padding: "12px",
-                        borderRadius: "14px", border: "none",
-                        background: `linear-gradient(135deg, ${t.accent}, #f0834a)`,
-                        color: "#fff8f0",
-                        fontSize: "15px", fontWeight: "600",
-                        cursor: "pointer", fontFamily: "Inter, sans-serif",
-                        boxShadow: `0 4px 16px rgba(200,82,42,0.3)`,
-                        transition: "all 0.15s ease",
+                        width: "100%", padding: "11px",
+                        borderRadius: 4, border: "1px solid var(--accent)",
+                        background: "var(--accent)", color: "var(--accent-fg)",
+                        fontSize: 11, fontWeight: 600,
+                        letterSpacing: "0.08em", textTransform: "uppercase",
+                        cursor: "pointer", transition: "opacity 0.15s",
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.filter = "brightness(1.06)"; }}
-                      onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.filter = ""; }}
+                      onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; }}
+                      onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
                     >
                       Upload Another
                     </button>
@@ -825,7 +679,6 @@ export default function HomePage() {
                 )}
               </Card>
             )}
-
           </div>
         )}
       </main>
