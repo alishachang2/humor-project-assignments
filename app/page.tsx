@@ -24,9 +24,9 @@ const STEPS = [
 ];
 
 function ThumbUp({ filled }: { filled: boolean }) {
-  const color = "var(--green)";
+  const color = filled ? "#ffffff" : "var(--green)";
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill={filled ? color : "none"} stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill={filled ? color : "none"} stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
       <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
     </svg>
@@ -34,9 +34,9 @@ function ThumbUp({ filled }: { filled: boolean }) {
 }
 
 function ThumbDown({ filled }: { filled: boolean }) {
-  const color = "var(--status-error)";
+  const color = filled ? "#ffffff" : "var(--status-error)";
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill={filled ? color : "none"} stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill={filled ? color : "none"} stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z" />
       <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
     </svg>
@@ -278,6 +278,7 @@ export default function HomePage() {
         .next-btn:hover:not(:disabled) { opacity: 0.85; }
         .tab-btn { transition: all 0.16s ease; cursor: pointer; }
         .tab-btn:hover { opacity: 0.8; }
+        .drop-zone:hover { background: rgba(59,130,246,0.08) !important; border-color: rgba(59,130,246,0.5) !important; }
       `}</style>
 
       {/* Toast */}
@@ -412,11 +413,27 @@ export default function HomePage() {
           <div style={{ width: "100%", maxWidth: "480px", display: "flex", flexDirection: "column", gap: "16px", animation: "floatUp 0.4s ease forwards" }}>
 
             {/* Tab Toggle */}
-            <div style={{ display: "flex", gap: 0, border: "1px solid var(--border)", borderRadius: 4, overflow: "hidden" }}>
+            <div style={{ display: "flex", flexDirection: "row", gap: 2, border: "1px solid var(--border)", borderRadius: 10, padding: 6, background: "var(--bg)" }}>
               {[
-                { key: "rate", label: "Rate Captions" },
-                { key: "upload", label: "Upload Image" },
-              ].map((tb, i) => {
+                {
+                  key: "rate", label: "Rate Captions",
+                  icon: (active: boolean) => (
+                    <svg width="16" height="16" fill="none" stroke={active ? "var(--text)" : "var(--text2)"} strokeWidth="1.8" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  ),
+                },
+                {
+                  key: "upload", label: "Upload Image",
+                  icon: (active: boolean) => (
+                    <svg width="16" height="16" fill="none" stroke={active ? "var(--text)" : "var(--text2)"} strokeWidth="1.8" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  ),
+                },
+              ].map((tb) => {
                 const active = tab === tb.key;
                 return (
                   <button
@@ -424,16 +441,19 @@ export default function HomePage() {
                     className="tab-btn"
                     onClick={() => { setTab(tb.key as Tab); if (tb.key === "rate") resetUpload(); }}
                     style={{
-                      flex: 1, padding: "9px 16px",
-                      border: "none",
-                      borderLeft: i > 0 ? "1px solid var(--border)" : "none",
-                      background: active ? "var(--accent)" : "var(--bg)",
-                      color: active ? "var(--accent-fg)" : "var(--text2)",
-                      fontSize: 11, fontWeight: active ? 600 : 400,
-                      letterSpacing: "0.06em", textTransform: "uppercase" as const,
+                      display: "flex", alignItems: "center", gap: 10,
+                      padding: "9px 12px",
+                      borderRadius: 7, border: "none",
+                      background: active ? "var(--bg2)" : "transparent",
+                      color: active ? "var(--text)" : "var(--text2)",
+                      fontSize: 13, fontWeight: active ? 600 : 400,
+                      textAlign: "left", cursor: "pointer",
+                      transition: "background 0.12s ease",
                     }}
                   >
-                    {tb.label}
+                    {tb.icon(active)}
+                    <span style={{ flex: 1 }}>{tb.label}</span>
+                    {active && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />}
                   </button>
                 );
               })}
@@ -480,7 +500,7 @@ export default function HomePage() {
                   </p>
 
                   {/* Vote buttons */}
-                  <div style={{ display: "flex", width: "100%", border: "1px solid var(--border)", borderRadius: 6, overflow: "hidden" }}>
+                  <div style={{ display: "flex", width: "100%", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden" }}>
                     <button
                       className="vote-btn"
                       onClick={() => setVotedValue(1)}
@@ -488,15 +508,13 @@ export default function HomePage() {
                         flex: 1, padding: "16px 12px",
                         border: "none",
                         borderRight: "1px solid var(--border)",
-                        background: votedValue === 1 ? "rgba(189,224,129,0.15)" : "var(--bg)",
-                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                        background: votedValue === 1 ? "var(--green)" : "var(--bg)",
+                        display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
                         transition: "all 0.15s ease",
-                        outline: votedValue === 1 ? "2px solid var(--green)" : "none",
-                        outlineOffset: -2,
                       }}
                     >
+                      <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === 1 ? "#ffffff" : "var(--text2)" }}>Upvote</span>
                       <ThumbUp filled={votedValue === 1} />
-                      <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === 1 ? "var(--green)" : "var(--text2)" }}>Upvote</span>
                     </button>
 
                     <button
@@ -505,15 +523,13 @@ export default function HomePage() {
                       style={{
                         flex: 1, padding: "16px 12px",
                         border: "none",
-                        background: votedValue === -1 ? "rgba(192,57,43,0.08)" : "var(--bg)",
-                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
+                        background: votedValue === -1 ? "var(--status-error)" : "var(--bg)",
+                        display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
                         transition: "all 0.15s ease",
-                        outline: votedValue === -1 ? "2px solid var(--status-error)" : "none",
-                        outlineOffset: -2,
                       }}
                     >
+                      <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === -1 ? "#ffffff" : "var(--text2)" }}>Downvote</span>
                       <ThumbDown filled={votedValue === -1} />
-                      <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === -1 ? "var(--status-error)" : "var(--text2)" }}>Downvote</span>
                     </button>
                   </div>
 
@@ -558,6 +574,7 @@ export default function HomePage() {
                       onDragLeave={() => setDragOver(false)}
                       onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) handleFileUpload(f); }}
                       onClick={() => fileInputRef.current?.click()}
+                      className="drop-zone"
                       style={{
                         width: "100%",
                         border: `1px dashed ${dragOver ? "var(--accent)" : "var(--border)"}`,
