@@ -480,33 +480,40 @@ export default function HomePage() {
                   </p>
 
                   {/* Vote buttons */}
-                  <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+                  <div style={{ display: "flex", width: "100%", border: "1px solid var(--border)", borderRadius: 6, overflow: "hidden" }}>
                     <button
                       className="vote-btn"
                       onClick={() => setVotedValue(1)}
                       style={{
-                        width: 56, height: 56, borderRadius: "50%",
-                        border: `1.5px solid ${votedValue === 1 ? "var(--green)" : "var(--border)"}`,
+                        flex: 1, padding: "16px 12px",
+                        border: "none",
+                        borderRight: "1px solid var(--border)",
                         background: votedValue === 1 ? "rgba(189,224,129,0.15)" : "var(--bg)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
                         transition: "all 0.15s ease",
+                        outline: votedValue === 1 ? "2px solid var(--green)" : "none",
+                        outlineOffset: -2,
                       }}
                     >
                       <ThumbUp filled={votedValue === 1} />
+                      <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === 1 ? "var(--green)" : "var(--text2)" }}>Upvote</span>
                     </button>
 
                     <button
                       className="vote-btn"
                       onClick={() => setVotedValue(-1)}
                       style={{
-                        width: 56, height: 56, borderRadius: "50%",
-                        border: `1.5px solid ${votedValue === -1 ? "var(--status-error)" : "var(--border)"}`,
+                        flex: 1, padding: "16px 12px",
+                        border: "none",
                         background: votedValue === -1 ? "rgba(192,57,43,0.08)" : "var(--bg)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6,
                         transition: "all 0.15s ease",
+                        outline: votedValue === -1 ? "2px solid var(--status-error)" : "none",
+                        outlineOffset: -2,
                       }}
                     >
                       <ThumbDown filled={votedValue === -1} />
+                      <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === -1 ? "var(--status-error)" : "var(--text2)" }}>Downvote</span>
                     </button>
                   </div>
 
