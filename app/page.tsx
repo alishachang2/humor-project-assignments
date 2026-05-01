@@ -424,7 +424,7 @@ export default function HomePage() {
                   ),
                 },
                 {
-                  key: "upload", label: "Upload Image",
+                  key: "upload", label: "Generate a Caption",
                   icon: (active: boolean) => (
                     <svg width="16" height="16" fill="none" stroke={active ? "var(--text)" : "var(--text2)"} strokeWidth="1.8" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
@@ -469,10 +469,11 @@ export default function HomePage() {
                 <Card>
                   {/* Progress */}
                   <div style={{ width: "100%" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text2)", marginBottom: 8, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text2)", marginBottom: 4, letterSpacing: "0.06em", textTransform: "uppercase" }}>
                       <span>Rate this caption</span>
                       <span>{index + 1} / {captions.length}</span>
                     </div>
+                    <p style={{ fontSize: 11, color: "var(--text2)", margin: "0 0 8px 0" }}>Vote on whether you think this AI-generated caption is funny.</p>
                     <div style={{ width: "100%", height: 3, background: "var(--border)", borderRadius: 999, overflow: "hidden" }}>
                       <div style={{
                         height: "100%",
@@ -665,23 +666,21 @@ export default function HomePage() {
                     )}
                     <div>
                       <p style={{ fontSize: 9, fontWeight: 600, color: "var(--text2)", margin: "0 0 10px 0", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-                        Generated Captions · {generatedCaptions.length}
+                        Generated Caption
                       </p>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      <div>
                         {generatedCaptions.length === 0 ? (
                           <p style={{ color: "var(--text2)", fontSize: 13 }}>No captions returned.</p>
-                        ) : generatedCaptions.map((cap, i) => (
-                          <div key={cap.id || i} style={{
+                        ) : (
+                          <div style={{
                             background: "var(--bg2)", border: "1px solid var(--border)",
-                            borderRadius: 4, padding: "10px 12px",
-                            display: "flex", gap: 10, alignItems: "flex-start",
+                            borderRadius: 4, padding: "12px 14px",
                           }}>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text2)", minWidth: 16, marginTop: 2 }}>{i + 1}.</span>
-                            <span style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>
-                              {cap.content || cap.caption || JSON.stringify(cap)}
+                            <span style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.6 }}>
+                              {generatedCaptions[0].content || generatedCaptions[0].caption || JSON.stringify(generatedCaptions[0])}
                             </span>
                           </div>
-                        ))}
+                        )}
                       </div>
                     </div>
                     <button
