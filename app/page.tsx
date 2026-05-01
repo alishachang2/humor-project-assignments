@@ -303,8 +303,8 @@ export default function HomePage() {
         <div style={{ height: 3, backgroundColor: "var(--green)" }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 32px" }}>
           <div>
-            <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1 }}>
-              <em>The Humor Project.</em>
+            <h1 style={{ fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em", lineHeight: 1 }}>
+              The Humor Project
             </h1>
           </div>
 
@@ -409,298 +409,198 @@ export default function HomePage() {
           </div>
 
         ) : (
-          <div style={{ width: "100%", maxWidth: "480px", display: "flex", flexDirection: "column", gap: "16px", animation: "floatUp 0.4s ease forwards" }}>
+          <div style={{ width: "100%", maxWidth: "480px", animation: "floatUp 0.4s ease forwards" }}>
+            <Card>
+              {/* Tab Toggle */}
+              <div style={{ display: "flex", width: "100%", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: 8, padding: 4, gap: 2 }}>
+                {[
+                  {
+                    key: "rate", label: "Rate Captions",
+                    icon: (active: boolean) => (
+                      <svg width="14" height="14" fill="none" stroke={active ? "var(--text)" : "var(--text2)"} strokeWidth="1.8" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    ),
+                  },
+                  {
+                    key: "upload", label: "Generate a Caption",
+                    icon: (active: boolean) => (
+                      <svg width="14" height="14" fill="none" stroke={active ? "var(--text)" : "var(--text2)"} strokeWidth="1.8" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                    ),
+                  },
+                ].map((tb) => {
+                  const active = tab === tb.key;
+                  return (
+                    <button
+                      key={tb.key}
+                      className="tab-btn"
+                      onClick={() => { setTab(tb.key as Tab); if (tb.key === "rate") resetUpload(); }}
+                      style={{
+                        flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                        padding: "8px 12px",
+                        borderRadius: 6, border: "none",
+                        background: active ? "var(--bg2)" : "transparent",
+                        color: active ? "var(--text)" : "var(--text2)",
+                        fontSize: 12, fontWeight: active ? 600 : 400,
+                        cursor: "pointer", transition: "background 0.12s ease",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {tb.icon(active)}
+                      <span>{tb.label}</span>
+                      {active && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />}
+                    </button>
+                  );
+                })}
+              </div>
 
-            {/* Tab Toggle */}
-            <div style={{ display: "flex", flexDirection: "row", gap: 2, border: "1px solid var(--border)", borderRadius: 10, padding: 6, background: "var(--bg)" }}>
-              {[
-                {
-                  key: "rate", label: "Rate Captions",
-                  icon: (active: boolean) => (
-                    <svg width="16" height="16" fill="none" stroke={active ? "var(--text)" : "var(--text2)"} strokeWidth="1.8" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                  ),
-                },
-                {
-                  key: "upload", label: "Generate a Caption",
-                  icon: (active: boolean) => (
-                    <svg width="16" height="16" fill="none" stroke={active ? "var(--text)" : "var(--text2)"} strokeWidth="1.8" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
-                    </svg>
-                  ),
-                },
-              ].map((tb) => {
-                const active = tab === tb.key;
-                return (
-                  <button
-                    key={tb.key}
-                    className="tab-btn"
-                    onClick={() => { setTab(tb.key as Tab); if (tb.key === "rate") resetUpload(); }}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 10,
-                      padding: "9px 12px",
-                      borderRadius: 7, border: "none",
-                      background: active ? "var(--bg2)" : "transparent",
-                      color: active ? "var(--text)" : "var(--text2)",
-                      fontSize: 13, fontWeight: active ? 600 : 400,
-                      textAlign: "left", cursor: "pointer",
-                      transition: "background 0.12s ease",
-                    }}
-                  >
-                    {tb.icon(active)}
-                    <span style={{ flex: 1 }}>{tb.label}</span>
-                    {active && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--green)", flexShrink: 0 }} />}
-                  </button>
-                );
-              })}
-            </div>
+              <div style={{ width: "100%", height: 1, background: "var(--border)" }} />
 
-            {/* ── RATE TAB ── */}
-            {tab === "rate" && (
-              captions.length === 0 ? (
-                <Card>
+              {/* ── RATE TAB ── */}
+              {tab === "rate" && (
+                captions.length === 0 ? (
                   <p style={{ fontSize: 14, color: "var(--text2)", margin: 0 }}>No captions found.</p>
-                </Card>
-              ) : (
-                <Card>
-                  {/* Progress */}
-                  <div style={{ width: "100%" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text2)", marginBottom: 4, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-                      <span>Rate this caption</span>
-                      <span>{index + 1} / {captions.length}</span>
-                    </div>
-                    <p style={{ fontSize: 11, color: "var(--text2)", margin: "0 0 8px 0" }}>Vote on whether you think this AI-generated caption is funny.</p>
-                    <div style={{ width: "100%", height: 3, background: "var(--border)", borderRadius: 999, overflow: "hidden" }}>
-                      <div style={{
-                        height: "100%",
-                        width: `${((index + (votedValue !== null ? 1 : 0)) / captions.length) * 100}%`,
-                        background: "var(--accent)",
-                        borderRadius: 999,
-                        transition: "width 0.3s ease",
-                      }} />
-                    </div>
-                  </div>
-
-                  <div style={{ width: "100%", height: 1, background: "var(--border)" }} />
-
-                  {/* Image */}
-                  <div style={{ width: "100%", borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
-                    <img src={caption.imageUrl} alt={caption.content} style={{
-                      width: "100%", maxHeight: "230px", objectFit: "contain", display: "block",
-                      background: "var(--bg2)",
-                    }} />
-                  </div>
-
-                  {/* Caption text */}
-                  <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", lineHeight: 1.5, margin: 0, textAlign: "center" }}>
-                    {caption?.content}
-                  </p>
-
-                  {/* Vote buttons */}
-                  <div style={{ display: "flex", width: "100%", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden" }}>
-                    <button
-                      className="vote-btn"
-                      onClick={() => setVotedValue(1)}
-                      style={{
-                        flex: 1, padding: "16px 12px",
-                        border: "none",
-                        borderRight: "1px solid var(--border)",
-                        background: votedValue === 1 ? "var(--green)" : "var(--bg)",
-                        display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-                        transition: "all 0.15s ease",
-                      }}
-                    >
-                      <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === 1 ? "#ffffff" : "var(--text2)" }}>Upvote</span>
-                      <ThumbUp filled={votedValue === 1} />
-                    </button>
-
-                    <button
-                      className="vote-btn"
-                      onClick={() => setVotedValue(-1)}
-                      style={{
-                        flex: 1, padding: "16px 12px",
-                        border: "none",
-                        background: votedValue === -1 ? "var(--status-error)" : "var(--bg)",
-                        display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-                        transition: "all 0.15s ease",
-                      }}
-                    >
-                      <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === -1 ? "#ffffff" : "var(--text2)" }}>Downvote</span>
-                      <ThumbDown filled={votedValue === -1} />
-                    </button>
-                  </div>
-
-                  {/* Next button */}
-                  <button
-                    className="next-btn"
-                    onClick={handleNext}
-                    disabled={votedValue === null}
-                    style={{
-                      width: "100%", padding: "11px",
-                      borderRadius: 4,
-                      border: "1px solid var(--accent)",
-                      background: votedValue !== null ? "var(--accent)" : "transparent",
-                      color: votedValue !== null ? "var(--accent-fg)" : "var(--text2)",
-                      fontSize: 11, fontWeight: 600,
-                      letterSpacing: "0.08em", textTransform: "uppercase",
-                      cursor: votedValue !== null ? "pointer" : "not-allowed",
-                      transition: "all 0.15s ease",
-                    }}
-                  >
-                    Next →
-                  </button>
-                </Card>
-              )
-            )}
-
-            {/* ── UPLOAD TAB ── */}
-            {tab === "upload" && (
-              <Card>
-                <div style={{ textAlign: "center", width: "100%" }}>
-                  <p style={{ fontSize: 9, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text2)", marginBottom: 6 }}>Upload</p>
-                  <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, fontWeight: 400, color: "var(--text)", margin: "0 0 4px 0", letterSpacing: "-0.02em" }}>
-                    <em>Generate Captions.</em>
-                  </h2>
-                </div>
-
-                {/* Idle / Error */}
-                {(uploadState === "idle" || uploadState === "error") && (
+                ) : (
                   <>
-                    <div
-                      onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                      onDragLeave={() => setDragOver(false)}
-                      onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) handleFileUpload(f); }}
-                      onClick={() => fileInputRef.current?.click()}
-                      className="drop-zone"
-                      style={{
-                        width: "100%",
-                        border: `1px dashed ${dragOver ? "var(--accent)" : "var(--border)"}`,
-                        borderRadius: 6, padding: "36px 24px",
-                        textAlign: "center", cursor: "pointer",
-                        background: dragOver ? "var(--bg2)" : "var(--bg)",
-                        transition: "all 0.2s ease",
-                      }}
-                    >
-                      <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}>
-                        <svg width="28" height="28" fill="none" stroke="var(--text2)" strokeWidth="1.5" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <polyline points="21 15 16 10 5 21" />
-                        </svg>
+                    {/* Progress */}
+                    <div style={{ width: "100%" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text2)", marginBottom: 4, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                        <span>Rate this caption</span>
+                        <span>{index + 1} / {captions.length}</span>
                       </div>
-                      <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 13, margin: "0 0 4px 0" }}>Drop your image here</p>
-                      <p style={{ color: "var(--text2)", fontSize: 11, margin: 0, letterSpacing: "0.04em" }}>or click to browse · JPEG, PNG, WebP, GIF, HEIC</p>
+                      <p style={{ fontSize: 11, color: "var(--text2)", margin: "0 0 8px 0" }}>Vote on whether you think this AI-generated caption is funny.</p>
+                      <div style={{ width: "100%", height: 3, background: "var(--border)", borderRadius: 999, overflow: "hidden" }}>
+                        <div style={{
+                          height: "100%",
+                          width: `${((index + (votedValue !== null ? 1 : 0)) / captions.length) * 100}%`,
+                          background: "var(--accent)", borderRadius: 999, transition: "width 0.3s ease",
+                        }} />
+                      </div>
                     </div>
-                    <input ref={fileInputRef} type="file"
-                      accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic"
-                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }}
-                      style={{ display: "none" }} />
-                    {uploadState === "error" && uploadError && (
-                      <div style={{
-                        width: "100%",
-                        background: "transparent", border: "1px solid var(--status-error)",
-                        borderRadius: 4, padding: "10px 14px",
-                        color: "var(--status-error)", fontSize: 12,
-                      }}>
-                        {uploadError}
-                      </div>
-                    )}
+
+                    <div style={{ width: "100%", height: 1, background: "var(--border)" }} />
+
+                    {/* Image */}
+                    <div style={{ width: "100%", borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
+                      <img src={caption.imageUrl} alt={caption.content} style={{ width: "100%", maxHeight: "230px", objectFit: "contain", display: "block", background: "var(--bg2)" }} />
+                    </div>
+
+                    {/* Caption text */}
+                    <p style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", lineHeight: 1.5, margin: 0, textAlign: "center" }}>
+                      {caption?.content}
+                    </p>
+
+                    {/* Vote buttons */}
+                    <div style={{ display: "flex", width: "100%", border: "1px solid var(--border)", borderRadius: 14, overflow: "hidden" }}>
+                      <button className="vote-btn" onClick={() => setVotedValue(1)} style={{ flex: 1, padding: "16px 12px", border: "none", borderRight: "1px solid var(--border)", background: votedValue === 1 ? "var(--green)" : "var(--bg)", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, transition: "all 0.15s ease" }}>
+                        <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === 1 ? "#ffffff" : "var(--text2)" }}>Upvote</span>
+                        <ThumbUp filled={votedValue === 1} />
+                      </button>
+                      <button className="vote-btn" onClick={() => setVotedValue(-1)} style={{ flex: 1, padding: "16px 12px", border: "none", background: votedValue === -1 ? "var(--status-error)" : "var(--bg)", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, transition: "all 0.15s ease" }}>
+                        <span style={{ fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: 600, color: votedValue === -1 ? "#ffffff" : "var(--text2)" }}>Downvote</span>
+                        <ThumbDown filled={votedValue === -1} />
+                      </button>
+                    </div>
+
+                    {/* Next button */}
+                    <button className="next-btn" onClick={handleNext} disabled={votedValue === null} style={{ width: "100%", padding: "11px", borderRadius: 4, border: "1px solid var(--accent)", background: votedValue !== null ? "var(--accent)" : "transparent", color: votedValue !== null ? "var(--accent-fg)" : "var(--text2)", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", cursor: votedValue !== null ? "pointer" : "not-allowed", transition: "all 0.15s ease" }}>
+                      Next →
+                    </button>
                   </>
-                )}
+                )
+              )}
 
-                {/* Loading */}
-                {isLoading && (
-                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
-                    {previewUrl && (
-                      <div style={{ position: "relative", borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
-                        <img src={previewUrl} alt="Preview" style={{ width: "100%", maxHeight: 160, objectFit: "contain", display: "block", filter: "brightness(0.6) saturate(0.7)" }} />
-                        <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                          <div style={{ width: 32, height: 32, border: "2px solid rgba(255,255,255,0.2)", borderTop: "2px solid rgba(255,255,255,0.9)", borderRadius: "50%", animation: "spin 0.75s linear infinite" }} />
+              {/* ── GENERATE TAB ── */}
+              {tab === "upload" && (
+                <>
+                  {(uploadState === "idle" || uploadState === "error") && (
+                    <>
+                      <div onDragOver={(e) => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)} onDrop={(e) => { e.preventDefault(); setDragOver(false); const f = e.dataTransfer.files?.[0]; if (f) handleFileUpload(f); }} onClick={() => fileInputRef.current?.click()} className="drop-zone" style={{ width: "100%", border: `1px dashed ${dragOver ? "var(--accent)" : "var(--border)"}`, borderRadius: 6, padding: "36px 24px", textAlign: "center", cursor: "pointer", background: dragOver ? "var(--bg2)" : "var(--bg)", transition: "all 0.2s ease" }}>
+                        <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}>
+                          <svg width="28" height="28" fill="none" stroke="var(--text2)" strokeWidth="1.5" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                          </svg>
                         </div>
+                        <p style={{ color: "var(--text)", fontWeight: 600, fontSize: 13, margin: "0 0 4px 0" }}>Drop your image here</p>
+                        <p style={{ color: "var(--text2)", fontSize: 11, margin: 0, letterSpacing: "0.04em" }}>or click to browse · JPEG, PNG, WebP, GIF, HEIC</p>
                       </div>
-                    )}
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      {STEPS.map((step, i) => {
-                        const done = i < currentStep;
-                        const active = i === currentStep;
-                        return (
-                          <div key={step.key} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <div style={{
-                              width: 18, height: 18, borderRadius: "50%", flexShrink: 0,
-                              background: done ? "var(--accent)" : "var(--bg2)",
-                              border: `1.5px solid ${done ? "var(--accent)" : active ? "var(--text2)" : "var(--border)"}`,
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              transition: "all 0.3s ease",
-                            }}>
-                              {done ? (
-                                <svg width="9" height="9" viewBox="0 0 10 10" fill="none">
-                                  <path d="M2 5l2 2.5L8 3" stroke="var(--accent-fg)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                              ) : active ? (
-                                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--text2)", animation: "blink 1.2s ease infinite" }} />
-                              ) : (
-                                <div style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--border)" }} />
-                              )}
-                            </div>
-                            <span style={{ fontSize: 12, fontWeight: active ? 600 : 400, color: done ? "var(--text)" : active ? "var(--text)" : "var(--text2)", transition: "color 0.3s ease" }}>
-                              {step.label}{active ? "…" : ""}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                      <input ref={fileInputRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/heic" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} style={{ display: "none" }} />
+                      {uploadState === "error" && uploadError && (
+                        <div style={{ width: "100%", background: "transparent", border: "1px solid var(--status-error)", borderRadius: 4, padding: "10px 14px", color: "var(--status-error)", fontSize: 12 }}>
+                          {uploadError}
+                        </div>
+                      )}
+                    </>
+                  )}
 
-                {/* Done */}
-                {uploadState === "done" && (
-                  <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14 }}>
-                    {(uploadedImageUrl || previewUrl) && (
-                      <div style={{ borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
-                        <img src={uploadedImageUrl || previewUrl!} alt="Uploaded" style={{ width: "100%", maxHeight: 180, objectFit: "contain", display: "block" }} />
+                  {isLoading && (
+                    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
+                      {previewUrl && (
+                        <div style={{ position: "relative", borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
+                          <img src={previewUrl} alt="Preview" style={{ width: "100%", maxHeight: 160, objectFit: "contain", display: "block", filter: "brightness(0.6) saturate(0.7)" }} />
+                          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            <div style={{ width: 32, height: 32, border: "2px solid rgba(255,255,255,0.2)", borderTop: "2px solid rgba(255,255,255,0.9)", borderRadius: "50%", animation: "spin 0.75s linear infinite" }} />
+                          </div>
+                        </div>
+                      )}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {STEPS.map((step, i) => {
+                          const done = i < currentStep;
+                          const active = i === currentStep;
+                          return (
+                            <div key={step.key} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <div style={{ width: 18, height: 18, borderRadius: "50%", flexShrink: 0, background: done ? "var(--accent)" : "var(--bg2)", border: `1.5px solid ${done ? "var(--accent)" : active ? "var(--text2)" : "var(--border)"}`, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.3s ease" }}>
+                                {done ? (
+                                  <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M2 5l2 2.5L8 3" stroke="var(--accent-fg)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                                ) : active ? (
+                                  <div style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--text2)", animation: "blink 1.2s ease infinite" }} />
+                                ) : (
+                                  <div style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--border)" }} />
+                                )}
+                              </div>
+                              <span style={{ fontSize: 12, fontWeight: active ? 600 : 400, color: active ? "var(--text)" : done ? "var(--text)" : "var(--text2)", transition: "color 0.3s ease" }}>
+                                {step.label}{active ? "…" : ""}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
-                    )}
-                    <div>
-                      <p style={{ fontSize: 9, fontWeight: 600, color: "var(--text2)", margin: "0 0 10px 0", textTransform: "uppercase", letterSpacing: "0.12em" }}>
-                        Generated Caption
-                      </p>
+                    </div>
+                  )}
+
+                  {uploadState === "done" && (
+                    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 14 }}>
+                      {(uploadedImageUrl || previewUrl) && (
+                        <div style={{ borderRadius: 6, overflow: "hidden", border: "1px solid var(--border)" }}>
+                          <img src={uploadedImageUrl || previewUrl!} alt="Uploaded" style={{ width: "100%", maxHeight: 180, objectFit: "contain", display: "block" }} />
+                        </div>
+                      )}
                       <div>
+                        <p style={{ fontSize: 9, fontWeight: 600, color: "var(--text2)", margin: "0 0 10px 0", textTransform: "uppercase", letterSpacing: "0.12em" }}>Generated Caption</p>
                         {generatedCaptions.length === 0 ? (
                           <p style={{ color: "var(--text2)", fontSize: 13 }}>No captions returned.</p>
                         ) : (
-                          <div style={{
-                            background: "var(--bg2)", border: "1px solid var(--border)",
-                            borderRadius: 4, padding: "12px 14px",
-                          }}>
+                          <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: 4, padding: "12px 14px" }}>
                             <span style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.6 }}>
                               {generatedCaptions[0].content || generatedCaptions[0].caption || JSON.stringify(generatedCaptions[0])}
                             </span>
                           </div>
                         )}
                       </div>
+                      <button onClick={resetUpload} style={{ width: "100%", padding: "11px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--accent)", color: "var(--accent-fg)", fontSize: 11, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", transition: "opacity 0.15s" }} onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; }} onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}>
+                        Upload Another
+                      </button>
                     </div>
-                    <button
-                      onClick={resetUpload}
-                      style={{
-                        width: "100%", padding: "11px",
-                        borderRadius: 4, border: "1px solid var(--accent)",
-                        background: "var(--accent)", color: "var(--accent-fg)",
-                        fontSize: 11, fontWeight: 600,
-                        letterSpacing: "0.08em", textTransform: "uppercase",
-                        cursor: "pointer", transition: "opacity 0.15s",
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.opacity = "0.85"; }}
-                      onMouseLeave={e => { e.currentTarget.style.opacity = "1"; }}
-                    >
-                      Upload Another
-                    </button>
-                  </div>
-                )}
-              </Card>
-            )}
+                  )}
+                </>
+              )}
+            </Card>
           </div>
         )}
       </main>
