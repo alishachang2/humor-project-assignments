@@ -303,9 +303,8 @@ export default function HomePage() {
         <div style={{ height: 3, backgroundColor: "var(--green)" }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 32px" }}>
           <div>
-            <p style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--text2)", marginBottom: 2 }}>The Humor Project</p>
             <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, letterSpacing: "-0.02em", lineHeight: 1 }}>
-              <em>Assignments.</em>
+              <em>The Humor Project.</em>
             </h1>
           </div>
 

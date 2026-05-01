@@ -17,7 +17,7 @@ export default function LoginPage() {
 
   return (
     <div style={s.page}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet" />
       <div style={{ height: 3, backgroundColor: 'var(--green)' }} />
 
       <header style={s.header}>
@@ -27,7 +27,7 @@ export default function LoginPage() {
 
       <main style={s.main}>
         <p style={s.eyebrow}>Sign In</p>
-        <h1 style={s.heading}>Welcome<br /><em>back.</em></h1>
+        <h1 style={s.heading}>Welcome<br />back.</h1>
         <p style={s.body}>
           Rate captions and upload images for the Humor Project.
         </p>
@@ -84,9 +84,9 @@ const s: Record<string, React.CSSProperties> = {
     maxWidth: 560,
   },
   heading: {
-    fontFamily: "'DM Serif Display', serif",
+    fontFamily: "'Playfair Display', serif",
     fontSize: 84,
-    fontWeight: 400,
+    fontWeight: 700,
     lineHeight: 0.92,
     letterSpacing: '-0.03em',
     marginBottom: 24,
